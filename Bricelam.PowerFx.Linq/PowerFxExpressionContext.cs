@@ -4,6 +4,7 @@ using Microsoft.PowerFx.Types;
 
 namespace Bricelam.PowerFx.Linq;
 
+// TODO: Named formulas
 class PowerFxExpressionContext
 {
     public ParameterExpression? ThisRecord { get; set; }
@@ -18,6 +19,7 @@ class PowerFxExpressionContext
             config.SymbolTable.AddVariable("ThisRecord", FormulaType.UntypedObject);
             foreach (var property in ThisRecord.Type.GetProperties())
             {
+                // TODO: Handle Dictionary<string, object>
                 config.SymbolTable.AddVariable(
                     property.Name,
                     // TODO: Lift all numbers to decimal?
@@ -32,5 +34,26 @@ class PowerFxExpressionContext
         checkResult.ThrowOnErrors();
 
         return checkResult.Parse.Root.Accept(new LinqTranslatingVisitor(), this);
+    }
+
+    public Expression? Bind(string identifier)
+    {
+        if (ThisRecord is not null)
+        {
+            if (identifier == "ThisRecord")
+            {
+                return ThisRecord;
+            }
+
+            // TODO: Handle Dictionary<string, object>
+            var property = ThisRecord.Type.GetProperty(identifier);
+            if (property is not null)
+            {
+                // TODO: Lift all numbers to decimal?
+                return Expression.Property(ThisRecord, property);
+            }
+        }
+
+        return null;
     }
 }

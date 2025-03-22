@@ -6,12 +6,13 @@ namespace Bricelam.PowerFx.Linq;
 public static class PowerFxIQueryableExtensions
 {
     // DRY (LinqTranslatingVisitor)
-    static readonly Type _dictionaryType = typeof(Dictionary<string, object>);
+    static readonly Type _dictionaryType = typeof(Dictionary<string, object?>);
     static readonly MethodInfo _addMethod = _dictionaryType
-        .GetMethod(nameof(Dictionary<string, object>.Add), [typeof(string), typeof(object)])!;
+        .GetMethod(nameof(Dictionary<string, object?>.Add), [typeof(string), typeof(object)])!;
 
     // TODO: Binding overlad
-    public static IQueryable<Dictionary<string, object>> AddColumns<TSource>(
+    // TODO: Dynamic via ExpandoObject?
+    public static IQueryable<Dictionary<string, object?>> AddColumns<TSource>(
         this IQueryable<TSource> source,
         params (string Name, string Formula)[] columns)
     {
@@ -43,7 +44,7 @@ public static class PowerFxIQueryableExtensions
                     Expression.Convert(context.Translate(column.Formula), typeof(object))));
         }
 
-        var selector = Expression.Lambda<Func<TSource, Dictionary<string, object>>>(
+        var selector = Expression.Lambda<Func<TSource, Dictionary<string, object?>>>(
             Expression.ListInit(Expression.New(_dictionaryType), initializers),
             e);
 
@@ -51,7 +52,7 @@ public static class PowerFxIQueryableExtensions
     }
 
     // TODO
-    //public static IQueryable<Dictionary<string, object>> Select<TSource>(
+    //public static IQueryable<Dictionary<string, object?>> Select<TSource>(
     //    this IQueryable<TSource> source,
     //    string formula);
 }

@@ -18,7 +18,8 @@ public static class NamedFormulas
         {
             if (!value.StartsWith('='))
             {
-                throw new PowerFxException($"Named formula '{key}' must begin with a leading equal sign. File: {path}");
+                throw new PowerFxLinqException(
+                    $"Named formula '{key}' must begin with a leading equal sign. File: {path}");
             }
 
             formulas.Add(key, value.Substring(1));
@@ -27,6 +28,7 @@ public static class NamedFormulas
         return formulas;
     }
 
+    // TODO: Does this belong here?
     public static IEnumerable<string> GetDependencies(string formula)
     {
         var engine = new Engine();

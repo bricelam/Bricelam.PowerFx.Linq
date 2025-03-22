@@ -7,7 +7,7 @@ public class LinqTranslatingVisitorTests
 {
     [Fact]
     public void Blank_formulas_throw()
-        => Assert.Throws<PowerFxException>(
+        => Assert.Throws<PowerFxLinqException>(
             () => ActionTest(""));
 
     [Theory]
@@ -125,15 +125,14 @@ public class LinqTranslatingVisitorTests
     public void Table_record()
     => FuncTest("[{Value:1}]", new List<Dictionary<string, object?>> { new() { { "Value", 1m } } });
 
-    void ActionTest(string formula)
+    static void ActionTest(string formula)
     {
-        var context = new PowerFxExpressionContext();
-        var expression = context.Translate(formula);
+        var expression = PowerFxExpression.Action(formula);
 
         Expression.Lambda<Action>(expression).Compile().Invoke();
     }
 
-    void FuncTest<TResult>(string formula, TResult expected)
+    static void FuncTest<TResult>(string formula, TResult expected)
     {
         var expression = PowerFxExpression.Func<TResult>(formula);
 

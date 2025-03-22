@@ -4,7 +4,7 @@ namespace Bricelam.PowerFx.Linq.Translators;
 
 class SimpleBinaryOperatorsTranslator : IFunctionCallTranslator
 {
-    static readonly Dictionary<string, Func<Expression, Expression, Expression>> _map = new()
+    static readonly Dictionary<string, Func<Expression, Expression, BinaryExpression>> _map = new()
     {
         { "And", Expression.AndAlso },
 
@@ -31,7 +31,7 @@ class SimpleBinaryOperatorsTranslator : IFunctionCallTranslator
     }
 
     static Expression CreateBinaryTree(
-        Func<Expression, Expression, Expression> binaryExpressionFactory,
+        Func<Expression, Expression, BinaryExpression> binaryExpressionFactory,
         IEnumerable<Expression> nodes)
     {
         Expression? tree = null;

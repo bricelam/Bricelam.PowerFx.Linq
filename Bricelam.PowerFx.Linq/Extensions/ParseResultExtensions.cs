@@ -22,9 +22,9 @@ static class ParseResultExtensions
         {
             builder
                 .AppendLine()
-                .Append(error.ToString());
+                .Append(error);
         }
 
-        throw new PowerFxException(builder.ToString());
+        throw new PowerFxLinqException(builder.ToString());
     }
 }

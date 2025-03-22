@@ -18,18 +18,19 @@ class LinqTranslatingVisitor : TexlFunctionalVisitor<Expression, PowerFxExpressi
 
     readonly List<IFunctionCallTranslator> _translators = [
         new SimpleBinaryOperatorsTranslator(),
+        new SimpleConstantsTranslator(),
         new SimpleInstanceMethodsTranslator(),
         new SimpleInstancePropertiesTranslator(),
-        new SimpleConstantsTranslator(),
         new SimpleStaticMethodsTranslator(),
-        new SimpleStaticPropertiesTranslator()
+        new SimpleStaticPropertiesTranslator(),
+        new SimpleUnaryOperatorsTranslator()
     ];
 
     public override Expression Visit(ErrorNode node, PowerFxExpressionContext context)
-        => throw new PowerFxException(node.Message);
+        => throw new PowerFxLinqException(node.Message);
 
     public override Expression Visit(BlankNode node, PowerFxExpressionContext context)
-        => throw new PowerFxException("The formula is blank.");
+        => throw new PowerFxLinqException("The formula is blank.");
 
     public override Expression Visit(BoolLitNode node, PowerFxExpressionContext context)
         => Expression.Constant(node.Value);
@@ -43,26 +44,16 @@ class LinqTranslatingVisitor : TexlFunctionalVisitor<Expression, PowerFxExpressi
     public override Expression Visit(DecLitNode node, PowerFxExpressionContext context)
         => Expression.Constant(node.ActualDecValue);
 
-    // TODO: Move logic to PowerFxExpressionContext
     public override Expression Visit(FirstNameNode node, PowerFxExpressionContext context)
     {
-        if (context.ThisRecord is not null)
+        var translation = context.Bind(node.Ident.Name);
+        if (translation is not null)
         {
-            if (node.Ident.Name == "ThisRecord")
-            {
-                return context.ThisRecord;
-            }
-
-            var property = context.ThisRecord.Type.GetProperty(node.Ident.Name);
-            if (property is not null)
-            {
-                // TODO: Lift all numbers to decimal?
-                return Expression.Property(context.ThisRecord, property);
-            }
+            return translation;
         }
 
         // TODO: Color.*
-        throw new PowerFxException("Unknown identifier: " + node.Ident.Name);
+        throw new PowerFxLinqException("Unknown identifier: " + node.Ident.Name);
     }
 
     public override Expression Visit(ParentNode node, PowerFxExpressionContext context)
@@ -98,7 +89,7 @@ class LinqTranslatingVisitor : TexlFunctionalVisitor<Expression, PowerFxExpressi
 
         if (node.Op == UnaryOp.Percent)
         {
-            return Expression.Multiply(child, Expression.Constant(0.01m));
+            return Expression.Divide(child, Expression.Constant(100.0m));
         }
 
         throw new UnreachableException("Unexpected UnaryOp: " + node.Op);
@@ -225,7 +216,7 @@ class LinqTranslatingVisitor : TexlFunctionalVisitor<Expression, PowerFxExpressi
                     typeof(string).GetMethod(nameof(string.Substring), [typeof(int), typeof(int)])!,
                     [
                         Expression.Constant(0),
-                            arguments[1]
+                        arguments[1]
                     ]);
 
             case "Log":
@@ -245,9 +236,6 @@ class LinqTranslatingVisitor : TexlFunctionalVisitor<Expression, PowerFxExpressi
                                 Expression.Constant(1)),
                             arguments[2]
                     ]);
-
-            case "Not":
-                return Expression.Not(arguments.Single());
 
             case "Right":
                 return Expression.Call(
@@ -285,7 +273,7 @@ class LinqTranslatingVisitor : TexlFunctionalVisitor<Expression, PowerFxExpressi
                     typeof(object)));
         }
 
-        // TODO: Consider ValueTuple more. Maybe a PowerFx-specific type?
+        // TODO: Consider ExpandoObject
         return Expression.ListInit(
             Expression.New(_dictionaryType),
             initializers);

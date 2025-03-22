@@ -29,7 +29,7 @@ public class NamedFormulasTests
             Formula: 0
             """);
 
-        Assert.Throws<PowerFxException>(
+        Assert.Throws<PowerFxLinqException>(
             () => NamedFormulas.Load(file));
     }
 
@@ -48,7 +48,7 @@ public class NamedFormulasTests
     {
         var formula = ">= 25";
 
-        var ex = Assert.Throws<PowerFxException>(
+        var ex = Assert.Throws<PowerFxLinqException>(
             () => NamedFormulas.GetDependencies(formula));
 
         Assert.Contains("Expected an operand.", ex.Message);

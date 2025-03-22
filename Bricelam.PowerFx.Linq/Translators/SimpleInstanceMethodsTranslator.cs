@@ -7,8 +7,8 @@ class SimpleInstanceMethodsTranslator : IFunctionCallTranslator
     static readonly Dictionary<string, (Type Type, string MethodName)> _map = new()
     {
         { "EndsWith", (typeof(string), nameof(string.EndsWith)) },
-        { "StartsWith", (typeof(string), nameof(string.StartsWith)) },
         { "Lower", (typeof(string), nameof(string.ToLower)) },
+        { "StartsWith", (typeof(string), nameof(string.StartsWith)) },
 
         // TODO: Handle InstanceNumber parameter
         { "Substitute", (typeof(string), nameof(string.Replace)) },

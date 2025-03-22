@@ -7,12 +7,19 @@ namespace Microsoft.PowerFx;
 
 static class PowerFxConfigExtensions
 {
-    static readonly Type _builtinFunctionsCoreType = Type.GetType("Microsoft.PowerFx.Core.Texl.BuiltinFunctionsCore, Microsoft.PowerFx.Core", throwOnError: true)!;
+    static readonly Type _builtinFunctionsCoreType = Type.GetType(
+        "Microsoft.PowerFx.Core.Texl.BuiltinFunctionsCore, Microsoft.PowerFx.Core",
+        throwOnError: true)!;
     static readonly FieldInfo? _isUTCTodayField = _builtinFunctionsCoreType.GetField("IsUTCToday");
     static readonly FieldInfo? _utcNowField = _builtinFunctionsCoreType.GetField("UTCNow");
     static readonly FieldInfo? _utcTodayField = _builtinFunctionsCoreType.GetField("UTCToday");
-    static readonly Type _texlFunctionType = Type.GetType("Microsoft.PowerFx.Core.Functions.TexlFunction, Microsoft.PowerFx.Core", throwOnError: true)!;
-    static readonly MethodInfo? _addFunctionMethod = typeof(PowerFxConfig).GetMethod("AddFunction", BindingFlags.Instance | BindingFlags.NonPublic, [_texlFunctionType]);
+    static readonly Type _texlFunctionType = Type.GetType(
+        "Microsoft.PowerFx.Core.Functions.TexlFunction, Microsoft.PowerFx.Core",
+        throwOnError: true)!;
+    static readonly MethodInfo? _addFunctionMethod = typeof(PowerFxConfig).GetMethod(
+        "AddFunction",
+        BindingFlags.Instance | BindingFlags.NonPublic,
+        [_texlFunctionType]);
 
     public static void EnableUTCFunctions(this PowerFxConfig config)
     {

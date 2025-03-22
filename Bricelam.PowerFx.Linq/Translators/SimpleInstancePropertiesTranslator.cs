@@ -8,14 +8,15 @@ class SimpleInstancePropertiesTranslator : IFunctionCallTranslator
     static readonly Dictionary<string, PropertyInfo> _map = new()
     {
         { "Day", typeof(DateTime).GetProperty(nameof(DateTime.Day))! },
-        { "Month", typeof(DateTime).GetProperty(nameof(DateTime.Month))! },
-        { "Year", typeof(DateTime).GetProperty(nameof(DateTime.Year))! },
         { "Hour", typeof(DateTime).GetProperty(nameof(DateTime.Hour))! },
         { "Minute", typeof(DateTime).GetProperty(nameof(DateTime.Minute))! },
+        { "Month", typeof(DateTime).GetProperty(nameof(DateTime.Month))! },
         { "Second", typeof(DateTime).GetProperty(nameof(DateTime.Second))! },
 
         // TODO: Convert to int, handle WeekdayFirst parameter
-        { "Weekday", typeof(DateTime).GetProperty(nameof(DateTime.DayOfWeek))! }
+        { "Weekday", typeof(DateTime).GetProperty(nameof(DateTime.DayOfWeek))! },
+
+        { "Year", typeof(DateTime).GetProperty(nameof(DateTime.Year))! }
     };
 
     public Expression? Translate(string functionName, IReadOnlyList<Expression> arguments)
