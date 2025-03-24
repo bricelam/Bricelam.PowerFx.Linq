@@ -1,9 +1,7 @@
-﻿using System.Linq.Expressions;
-
-namespace Bricelam.PowerFx.Linq;
+﻿namespace Bricelam.PowerFx.Linq;
 
 // TODO: Parse errors
-public class LinqTranslatingVisitorTests
+public class LinqTranslatingVisitorTests : TranslatingTestBase
 {
     [Fact]
     public void Blank_formulas_throw()
@@ -50,6 +48,18 @@ public class LinqTranslatingVisitorTests
         => FuncTest("-(1)", -1m);
 
     [Fact]
+    public void Unary_minus_double()
+        => FuncTest("-Value", new { Value = 1.0 }, -1.0);
+
+    [Fact]
+    public void Unary_minus_nullable_double()
+        => FuncTest("-Value", new { Value = (double?)1.0 }, (double?)-1.0);
+
+    [Fact]
+    public void Unary_minus_nullable_double_null()
+        => FuncTest("-Value", new { Value = default(double?) }, default(double?));
+
+    [Fact]
     public void Unary_percent()
         => FuncTest("1%", 0.01m);
 
@@ -70,12 +80,85 @@ public class LinqTranslatingVisitorTests
         => FuncTest("1 + 1", 2m);
 
     [Fact]
+    public void Binary_add_double()
+        => FuncTest("1 + Value", new { Value = 1.0 }, 2m);
+
+    [Fact]
+    public void Binary_add_nullable_double()
+        => FuncTest("1 + Value", new { Value = (double?)1.0 }, 2m);
+
+    [Fact]
+    public void Binary_add_nullable_double_null()
+        => Assert.Throws<InvalidOperationException>(
+            () => ActionTest("1 + Value", new { Value = default(double?) }));
+
+    [Fact]
+    public void Binary_sub()
+        => FuncTest("1 - 1", 0m);
+
+    [Fact]
+    public void Binary_sub_double()
+        => FuncTest("1 - Value", new { Value = 1.0 }, 0m);
+
+    [Fact]
+    public void Binary_sub_nullable_double()
+        => FuncTest("1 - Value", new { Value = (double?)1.0 }, 0m);
+
+    [Fact]
+    public void Binary_sub_nullable_double_null()
+        => Assert.Throws<InvalidOperationException>(
+            () => ActionTest("1 - Value", new { Value = default(double?) }));
+
+    [Fact]
     public void Binary_mul()
         => FuncTest("1 * 0", 0m);
 
     [Fact]
+    public void Binary_mul_double()
+        => FuncTest("1 * Value", new { Value = 0.0 }, 0m);
+
+    [Fact]
+    public void Binary_mul_nullable_double()
+        => FuncTest("1 * Value", new { Value = (double?)0.0 }, 0m);
+
+    [Fact]
+    public void Binary_mul_nullable_double_null()
+        => Assert.Throws<InvalidOperationException>(
+            () => ActionTest("1 * Value", new { Value = default(double?) }));
+
+    [Fact]
+    public void Binary_div()
+        => FuncTest("2 / 2", 1m);
+
+    [Fact]
+    public void Binary_div_double()
+        => FuncTest("2 / Value", new { Value = 2.0 }, 1m);
+
+    [Fact]
+    public void Binary_div_nullable_double()
+        => FuncTest("2 / Value", new { Value = (double?)2.0 }, 1m);
+
+    [Fact]
+    public void Binary_div_nullable_double_null()
+        => Assert.Throws<InvalidOperationException>(
+            () => ActionTest("2 / Value", new { Value = default(double?) }));
+
+    [Fact]
     public void Binary_power()
         => FuncTest("2 ^ 3", 8m);
+
+    [Fact]
+    public void Binary_power_double()
+        => FuncTest("Value ^ 3", new { Value = 2.0 }, 8.0);
+
+    [Fact]
+    public void Binary_power_nullable_double()
+        => FuncTest("Value ^ 3", new { Value = (double?)2.0 }, (double?)8.0);
+
+    [Fact]
+    public void Binary_power_nullable_double_null()
+        => Assert.Throws<InvalidOperationException>(
+            () => ActionTest("Value ^ 3", new { Value = default(double?) }));
 
     [Fact]
     public void Binary_equal()
@@ -128,22 +211,6 @@ public class LinqTranslatingVisitorTests
     [Fact]
     public void Table_record()
     => FuncTest("[{Value:1}]", new List<Dictionary<string, object?>> { new() { { "Value", 1m } } });
-
-    static void ActionTest(string formula)
-    {
-        var expression = PowerFxExpression.Action(formula);
-
-        Expression.Lambda<Action>(expression).Compile().Invoke();
-    }
-
-    static void FuncTest<TResult>(string formula, TResult expected)
-    {
-        var expression = PowerFxExpression.Func<TResult>(formula);
-
-        var actual = expression.Compile().Invoke();
-
-        Assert.Equal(expected, actual);
-    }
 
     // TODO: Test all types
     class TestEntity

@@ -21,6 +21,24 @@ public static class PowerFxExpression
     }
 
     /// <summary>
+    /// Translates formulas into <see cref="System.Action{T}"/> expressions.
+    /// </summary>
+    /// <typeparam name="T">The parameter (ThisRecord) type.</typeparam>
+    /// <param name="formula">The formula.</param>
+    /// <returns>The expression.</returns>
+    public static Expression<Action<T>> Action<T>(string formula)
+    {
+        var context = new PowerFxExpressionContext
+        {
+            ThisRecord = Expression.Parameter(typeof(T), "x")
+        };
+
+        return Expression.Lambda<Action<T>>(
+            context.Translate(formula),
+            context.ThisRecord);
+    }
+
+    /// <summary>
     /// Translates formulas into <see cref="System.Func{TResult}"/> expressions.
     /// </summary>
     /// <typeparam name="TResult">The return type.</typeparam>

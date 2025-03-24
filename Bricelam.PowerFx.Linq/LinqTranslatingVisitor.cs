@@ -90,7 +90,6 @@ class LinqTranslatingVisitor : TexlFunctionalVisitor<Expression, PowerFxExpressi
 
     public override Expression Visit(BinaryOpNode node, PowerFxExpressionContext context)
     {
-        // TODO: Handle Nullable (add .Value)
         var left = node.Left.Accept(this, context);
         var right = node.Right.Accept(this, context);
 
@@ -98,8 +97,8 @@ class LinqTranslatingVisitor : TexlFunctionalVisitor<Expression, PowerFxExpressi
         {
             BinaryOp.Or => Expression.OrElse,
             BinaryOp.And => Expression.AndAlso,
-            BinaryOp.Mul => Expression.Multiply,
-            BinaryOp.Div => Expression.Divide,
+            BinaryOp.Mul => ExpressionExtensions.LiftAndMultiply,
+            BinaryOp.Div => ExpressionExtensions.LiftAndDivide,
             BinaryOp.Equal => Expression.Equal,
             BinaryOp.NotEqual => Expression.NotEqual,
             BinaryOp.Less => Expression.LessThan,
@@ -110,12 +109,6 @@ class LinqTranslatingVisitor : TexlFunctionalVisitor<Expression, PowerFxExpressi
         };
         if (expressionFactory is not null)
         {
-            if (left.Type != right.Type)
-            {
-                // TODO: Better type lifting
-                right = Expression.Convert(right, left.Type);
-            }
-
             return expressionFactory(left, right);
         }
 
@@ -123,8 +116,8 @@ class LinqTranslatingVisitor : TexlFunctionalVisitor<Expression, PowerFxExpressi
         {
             case BinaryOp.Add:
                 return right is UnaryExpression { NodeType: ExpressionType.Negate } negateExpression
-                    ? Expression.Subtract(left, negateExpression.Operand)
-                    : Expression.Add(left, right);
+                    ? ExpressionExtensions.LiftAndSubtract(left, negateExpression.Operand)
+                    : ExpressionExtensions.LiftAndAdd(left, right);
 
             case BinaryOp.Concat:
                 return Expression.Add(
@@ -133,12 +126,12 @@ class LinqTranslatingVisitor : TexlFunctionalVisitor<Expression, PowerFxExpressi
                     typeof(string).GetMethod(nameof(string.Concat), [typeof(string), typeof(string)]));
 
             case BinaryOp.Power:
-                return Expression.Convert(
+                return ExpressionExtensions.ConvertIfNeeded(
                     Expression.Call(
                         instance: null,
                         typeof(Math).GetMethod(nameof(Math.Pow))!,
-                        Expression.Convert(left, typeof(double)),
-                        Expression.Convert(right, typeof(double))),
+                        ExpressionExtensions.ConvertIfNeeded(left, typeof(double)),
+                        ExpressionExtensions.ConvertIfNeeded(right, typeof(double))),
                     left.Type);
 
             case BinaryOp.In: // TODO: Case-insensitive
