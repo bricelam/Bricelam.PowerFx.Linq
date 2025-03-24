@@ -38,6 +38,7 @@ class SimpleBinaryOperatorsTranslator : IFunctionCallTranslator
         foreach (var node in nodes)
         {
             tree = tree is not null
+                // TODO: Review Expression.MakeBinary
                 ? binaryExpressionFactory(tree, node)
                 : node;
         }

@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Linq.Expressions;
-using System.Reflection;
+using Bricelam.PowerFx.Linq.Expressions;
 using Bricelam.PowerFx.Linq.Translators;
 using Microsoft.PowerFx.Syntax;
 
@@ -9,13 +9,6 @@ namespace Bricelam.PowerFx.Linq;
 // TODO: Singleton?
 class LinqTranslatingVisitor : TexlFunctionalVisitor<Expression, PowerFxExpressionContext>
 {
-    static readonly Type _dictionaryType = typeof(Dictionary<string, object?>);
-    static readonly MethodInfo _dictionaryAddMethod = _dictionaryType
-        .GetMethod(nameof(Dictionary<string, object?>.Add), [typeof(string), typeof(object)])!;
-    static readonly Type _listType = typeof(List<Dictionary<string, object?>>);
-    static readonly MethodInfo _listAddMethod = _listType
-        .GetMethod(nameof(List<Dictionary<string, object?>>.Add), [typeof(Dictionary<string, object?>)])!;
-
     readonly List<IFunctionCallTranslator> _translators = [
         new SimpleBinaryOperatorsTranslator(),
         new SimpleConstantsTranslator(),
@@ -262,51 +255,23 @@ class LinqTranslatingVisitor : TexlFunctionalVisitor<Expression, PowerFxExpressi
 
     public override Expression Visit(RecordNode node, PowerFxExpressionContext context)
     {
-        var initializers = new ElementInit[node.Count];
+        var fields = new Dictionary<string, Expression>();
         for (var i = 0; i < node.Count; i++)
         {
-            initializers[i] = Expression.ElementInit(
-                _dictionaryAddMethod,
-                Expression.Constant(node.Ids[i].Name.Value),
-                Expression.Convert(
-                    node.ChildNodes[i].Accept(this, context),
-                    typeof(object)));
+            fields.Add(node.Ids[i].Name, node.ChildNodes[i].Accept(this, context));
         }
 
-        // TODO: Consider ExpandoObject
-        return Expression.ListInit(
-            Expression.New(_dictionaryType),
-            initializers);
+        return new RecordExpression(fields);
     }
 
     public override Expression Visit(TableNode node, PowerFxExpressionContext context)
-    {
-        var initializers = new List<Expression>();
-        foreach (var initalizer in node.ChildNodes.Select(n => n.Accept(this, context)))
-        {
-            if (initalizer.Type == typeof(Dictionary<string, object?>))
-            {
-                initializers.Add(initalizer);
-                continue;
-            }
-
-            // TODO: Use a reducible node to avoid deconstruction later?
-            initializers.Add(
-                Expression.ListInit(
-                    Expression.New(_dictionaryType),
-                    Expression.ElementInit(
-                        _dictionaryAddMethod,
-                        Expression.Constant("Value"),
-                        Expression.Convert(
-                            initalizer,
-                            typeof(object)))));
-        }
-
-        return Expression.ListInit(
-            Expression.New(_listType),
-            _listAddMethod,
-            initializers);
-    }
+        => new TableExpression(
+            node.ChildNodes.Select(c => c.Accept(this, context))
+                .Select(
+                    c => c is RecordExpression recordExpression
+                        ? recordExpression
+                        : RecordExpression.FromValue(c))
+                .ToArray());
 
     public override Expression Visit(AsNode node, PowerFxExpressionContext context)
         => throw new NotImplementedException();

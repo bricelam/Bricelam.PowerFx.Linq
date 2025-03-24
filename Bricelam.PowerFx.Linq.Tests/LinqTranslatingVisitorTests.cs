@@ -122,6 +122,10 @@ public class LinqTranslatingVisitorTests
         => FuncTest("[1]", new List<Dictionary<string, object?>> { new() { { "Value", 1m } } });
 
     [Fact]
+    public void Table_value_expression()
+        => FuncTest("[1 + 1]", new List<Dictionary<string, object?>> { new() { { "Value", 2m } } });
+
+    [Fact]
     public void Table_record()
     => FuncTest("[{Value:1}]", new List<Dictionary<string, object?>> { new() { { "Value", 1m } } });
 
