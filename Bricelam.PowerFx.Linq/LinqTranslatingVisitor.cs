@@ -165,10 +165,17 @@ class LinqTranslatingVisitor : TexlFunctionalVisitor<Expression, PowerFxExpressi
             }
         }
 
-        // TODO: DateAdd, DateDiff, ISOWeekNum, IsUTCToday, Replace, Switch, Trim, WeekNum, Average, Sum, StdevP, VarP, Boolean, Char, UniChar, RGBA, ColorFade, Date, Time, DateTime, DateValue, TimeValue, Dec2Hex, Hex2Dec
+        // TODO: DateAdd, DateDiff, ISOWeekNum, IsUTCToday, Replace, Switch, Trim, WeekNum, StdevP, VarP, Boolean, Char, UniChar, RGBA, ColorFade, Date, Time, DateTime, DateValue, TimeValue, Dec2Hex, Hex2Dec
         // TODO: Got here https://learn.microsoft.com/en-us/power-platform/power-fx/reference/function-isnumeric
         switch (node.Head.Name)
         {
+            case "Average":
+                return ExpressionExtensions.LiftAndDivide(
+                    SimpleBinaryOperatorsTranslator.CreateBinaryTree(
+                        ExpressionExtensions.LiftAndAdd,
+                        arguments),
+                    Expression.Constant((double)arguments.Count));
+
             case "Char":
                 return Expression.Call(
                     Expression.Convert(arguments.Single(), typeof(char)),

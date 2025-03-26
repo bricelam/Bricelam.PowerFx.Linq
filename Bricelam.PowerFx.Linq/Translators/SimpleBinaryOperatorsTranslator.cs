@@ -17,7 +17,7 @@ class SimpleBinaryOperatorsTranslator : IFunctionCallTranslator
         { "Or", Expression.OrElse },
 
         // TODO: Handle aggregate
-        { "Sum", Expression.Add }
+        { "Sum", ExpressionExtensions.LiftAndAdd }
     };
 
     public Expression? Translate(string functionName, IReadOnlyList<Expression> arguments)
@@ -30,20 +30,19 @@ class SimpleBinaryOperatorsTranslator : IFunctionCallTranslator
         return null;
     }
 
-    static Expression CreateBinaryTree(
+    public static Expression CreateBinaryTree(
         Func<Expression, Expression, BinaryExpression> binaryExpressionFactory,
-        IEnumerable<Expression> nodes)
+        IEnumerable<Expression> operands)
     {
         Expression? tree = null;
-        foreach (var node in nodes)
+        foreach (var operand in operands)
         {
             tree = tree is not null
-                // TODO: Review Expression.MakeBinary
-                ? binaryExpressionFactory(tree, node)
-                : node;
+                ? binaryExpressionFactory(tree, operand)
+                : operand;
         }
 
         return tree
-            ?? throw new ArgumentException("The value cannot be empty.", nameof(nodes));
+            ?? throw new ArgumentException("The value cannot be empty.", nameof(operands));
     }
 }

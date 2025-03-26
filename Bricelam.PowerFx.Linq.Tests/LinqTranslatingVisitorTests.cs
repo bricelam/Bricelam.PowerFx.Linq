@@ -1,8 +1,12 @@
 ﻿namespace Bricelam.PowerFx.Linq;
 
-// TODO: Parse errors
 public class LinqTranslatingVisitorTests : TranslatingTestBase
 {
+    [Fact]
+    public void Error()
+        => Assert.Throws<InvalidOperationException>(
+            () => ActionTest(">= 25"));
+
     [Fact]
     public void Blank_formulas_throw()
         => Assert.Throws<PowerFxLinqException>(
@@ -211,6 +215,58 @@ public class LinqTranslatingVisitorTests : TranslatingTestBase
     [Fact]
     public void Table_record()
     => FuncTest("[{Value:1}]", new List<Dictionary<string, object?>> { new() { { "Value", 1m } } });
+
+    [Fact]
+    public void Call_Sum()
+        => FuncTest("Sum(1, 1)", 2m);
+
+    [Fact]
+    public void Call_Sum_one()
+        => FuncTest("Sum(1)", 1m);
+
+    [Fact]
+    public void Call_Sum_many()
+        => FuncTest("Sum(1, 1, 1)", 3m);
+
+    [Fact]
+    public void Call_Sum_double()
+        => FuncTest("Sum(1, Value)", new { Value = 1.0 }, 2m);
+
+    [Fact]
+    public void Call_Sum_nullable_double()
+        => FuncTest("Sum(1, Value)", new { Value = (double?)1.0 }, 2m);
+
+    [Fact]
+    // TODO: Verify this should throw
+    public void Call_Sum_nullable_double_null()
+        => Assert.Throws<InvalidOperationException>(
+            () => ActionTest("Sum(1, Value)", new { Value = default(double?) }));
+
+    [Fact]
+    public void Call_Average()
+        => FuncTest("Average(1, 1)", 1m);
+
+    [Fact]
+    public void Call_Average_one()
+        => FuncTest("Average(1)", 1m);
+
+    [Fact]
+    public void Call_Average_many()
+        => FuncTest("Average(1, 1, 1)", 1m);
+
+    [Fact]
+    public void Call_Average_double()
+        => FuncTest("Average(Value)", new { Value = 1.0 }, 1.0);
+
+    [Fact]
+    public void Call_Average_nullable_double()
+        => FuncTest("Average(Value)", new { Value = (double?)1.0 }, (double?)1.0);
+
+    [Fact]
+    // TODO: Verify this should throw
+    public void Call_Average_nullable_double_null()
+        => Assert.Throws<InvalidOperationException>(
+            () => ActionTest("Average(1, Value)", new { Value = default(double?) }));
 
     // TODO: Test all types
     class TestEntity
