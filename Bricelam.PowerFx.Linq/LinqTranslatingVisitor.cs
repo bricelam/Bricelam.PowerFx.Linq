@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Linq.Expressions;
 using Bricelam.PowerFx.Linq.Expressions;
 using Bricelam.PowerFx.Linq.Translators;
@@ -18,6 +18,9 @@ class LinqTranslatingVisitor : TexlFunctionalVisitor<Expression, PowerFxExpressi
         new SimpleStaticPropertiesTranslator(),
         new SimpleUnaryOperatorsTranslator()
     ];
+
+    public override Expression Visit(TypeLiteralNode node, PowerFxExpressionContext context)
+        => throw new NotImplementedException();
 
     public override Expression Visit(ErrorNode node, PowerFxExpressionContext context)
         => throw new PowerFxLinqException(node.Message);

@@ -1,4 +1,4 @@
-﻿using Microsoft.PowerFx.Syntax;
+using Microsoft.PowerFx.Syntax;
 
 namespace Bricelam.PowerFx.Linq;
 
@@ -42,6 +42,10 @@ class DependencyDiscoveringVisitor : TexlVisitor
         => Dependencies.Add(node.Ident.Name);
 
     public override void PostVisit(ListNode node)
+    {
+    }
+
+    public override void Visit(TypeLiteralNode node)
     {
     }
 
