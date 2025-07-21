@@ -1,4 +1,4 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 
 namespace Bricelam.PowerFx.Linq.Translators;
 
@@ -8,6 +8,10 @@ class SimpleInstanceMethodsTranslator : IFunctionCallTranslator
     {
         { "EndsWith", (typeof(string), nameof(string.EndsWith)) },
         { "Lower", (typeof(string), nameof(string.ToLower)) },
+
+        // TODO: Handle multiple separators
+        { "Split", (typeof(string), nameof(string.Split)) },
+
         { "StartsWith", (typeof(string), nameof(string.StartsWith)) },
 
         // TODO: Handle InstanceNumber parameter

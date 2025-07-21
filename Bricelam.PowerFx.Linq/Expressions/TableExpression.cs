@@ -1,8 +1,9 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 using System.Reflection;
 
 namespace Bricelam.PowerFx.Linq.Expressions;
 
+// TODO: Consider optimizations for single-column tables
 class TableExpression : Expression
 {
     static readonly Type _listType = typeof(List<Dictionary<string, object?>>);
@@ -27,17 +28,5 @@ class TableExpression : Expression
         => ListInit(
             New(_listType),
             _listAddMethod,
-    Records);
-
-    //public bool IsSingleColumnTable()
-    //{
-    //    if (Records.Count == 0)
-    //        return false;
-
-    //    var firstRecord = Records.First();
-    //    if (firstRecord.Fields.Count != 1)
-    //        return false;
-
-    //    return firstRecord.Fields.Keys.First() == "Value";
-    //}
+            Records);
 }

@@ -1,4 +1,4 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 using System.Reflection;
 
 namespace Bricelam.PowerFx.Linq.Translators;
@@ -9,11 +9,15 @@ class SimpleInstancePropertiesTranslator : IFunctionCallTranslator
     {
         { "Day", typeof(DateTime).GetProperty(nameof(DateTime.Day))! },
         { "Hour", typeof(DateTime).GetProperty(nameof(DateTime.Hour))! },
+
+        // TODO: Handle null
+        { "Len", typeof(string).GetProperty(nameof(string.Length))! },
+
         { "Minute", typeof(DateTime).GetProperty(nameof(DateTime.Minute))! },
         { "Month", typeof(DateTime).GetProperty(nameof(DateTime.Month))! },
         { "Second", typeof(DateTime).GetProperty(nameof(DateTime.Second))! },
 
-        // TODO: Convert to int, handle WeekdayFirst parameter
+        // TODO: Convert to int; handle WeekdayFirst parameter
         { "Weekday", typeof(DateTime).GetProperty(nameof(DateTime.DayOfWeek))! },
 
         { "Year", typeof(DateTime).GetProperty(nameof(DateTime.Year))! }

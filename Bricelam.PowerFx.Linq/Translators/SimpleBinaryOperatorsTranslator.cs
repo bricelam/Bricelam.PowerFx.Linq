@@ -1,4 +1,4 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 
 namespace Bricelam.PowerFx.Linq.Translators;
 
@@ -7,13 +7,8 @@ class SimpleBinaryOperatorsTranslator : IFunctionCallTranslator
     static readonly Dictionary<string, Func<Expression, Expression, BinaryExpression>> _map = new()
     {
         { "And", Expression.AndAlso },
-
-        // TODO: Handle additional arguments
         { "Coalesce", Expression.Coalesce },
-
-        // TODO: Type lifting
-        { "Mod", Expression.Modulo },
-
+        { "Mod", ExpressionExtensions.LiftAndModulo },
         { "Or", Expression.OrElse },
 
         // TODO: Handle aggregate

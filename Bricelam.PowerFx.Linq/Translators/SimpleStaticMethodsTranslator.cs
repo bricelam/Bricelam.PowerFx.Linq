@@ -1,4 +1,4 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 
 namespace Bricelam.PowerFx.Linq.Translators;
 
@@ -11,9 +11,11 @@ class SimpleStaticMethodsTranslator : IFunctionCallTranslator
         { "Acos", (typeof(Math), nameof(Math.Acos)) },
         { "Asin", (typeof(Math), nameof(Math.Asin)) },
         { "Atan", (typeof(Math), nameof(Math.Atan)) },
+
+        // TODO: Are these parameters backwards?
         { "Atan2", (typeof(Math), nameof(Math.Atan2)) },
 
-        // TODO: Handle args > 3 and non-string args
+        // TODO: Handle more than three parameters; handle non-strings
         { "Concatenate", (typeof(string), nameof(string.Concat)) },
 
         { "Cos", (typeof(Math), nameof(Math.Cos)) },
