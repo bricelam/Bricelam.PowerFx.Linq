@@ -1,6 +1,6 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 
-namespace Bricelam.PowerFx.Linq;
+namespace Bricelam.PowerFx.Linq.Translators;
 
 interface IFunctionCallTranslator
 {

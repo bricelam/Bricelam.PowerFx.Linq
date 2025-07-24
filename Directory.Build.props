@@ -1,0 +1,14 @@
+<Project>
+    <PropertyGroup>
+        <UseArtifactsOutput>true</UseArtifactsOutput>
+        <DebugType>embedded</DebugType>
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
+        <SignAssembly>True</SignAssembly>
+        <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)key.snk</AssemblyOriginatorKeyFile>
+        <Authors>Brice Lambson</Authors>
+        <Copyright>© 2025 Brice Lambson. All rights reserved.</Copyright>
+        <PackageLicenseExpression>MS-PL</PackageLicenseExpression>
+        <PackageTags>linq;powerfx</PackageTags>
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    </PropertyGroup>
+</Project>

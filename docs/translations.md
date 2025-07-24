@@ -1,181 +1,117 @@
-# Unary operators
+# Supported Translations
+
+These are the translations provided by this library.
+
+## Unary operators
 
 Power Fx | .NET
---- | ---
-!x | !x
--x | -x
-x% | x / 100.0
+-------- | ----
+!x       | !x
+-x       | -x
+x%       | x / 100.0
 
-# Binary operators
+## Binary operators
 
-Power Fx | .NET
---- | ---
-x \|\| y | x \|\| y
-x && y | x && y
-x * y | x * y
-x / y | x / y
-x = y | x == y
-x <> y | x != y
-x < y | x < y
-x <= y | x <= y
-x > y | x > y
-x >= y | x >= y
-x + y | x + y
-x - y | x - y
-x & y | x + y (string)
-x ^ y | Math.Pow
-x in y | y.Contains(x)
+Power Fx    | .NET
+----------- | ----
+x \|\| y    | x \|\| y
+x && y      | x && y
+x * y       | x * y
+x / y       | x / y
+x = y       | x == y
+x <> y      | x != y
+x < y       | x < y
+x <= y      | x <= y
+x > y       | x > y
+x >= y      | x >= y
+x + y       | x + y
+x - y       | x - y
+x & y       | x + y
+x ^ y       | Math.Pow(x, y)
+x in y      | y.Contains(x)
 x exactin y | y.Contains(x)
 
+## Functions
 
-# Functions
+Power Fx       | .NET
+-------------- | ----
+Abs            | Math.Abs
+Acos           | Math.ACos
+Acot           | (Math.Pi / 2.0) - Math.Atan
+And            | x && y && ...
+Asin           | Math.Asin
+Atan           | Math.Atan
+Atan2          | Math.Atan2
+Average        | (x + y + ...) / n
+Blank          | null
+Char           | ((char)value).ToString()
+Coalesce       | x ?? y ?? ...
+Concatenate    | string.Concat
+Cos            | Math.Cos
+Cot            | 1.0 / Math.Tan
+DateTimeValue  | DateTime.Parse
+Day            | dateTime.Day
+Degrees        | double.RadiansToDegrees
+EndsWith       | stringValue.EndsWith
+Exp            | Math.Exp
+GUID           | Guid.NewGuid or Guid.Parse
+Hour           | dateTime.Hour
+If             | x ? y : z
+Int            | Math.Floor
+IsBlank        | x == null
+Left           | stringValue.Substring(0, x)
+Len            | stringValue.Length
+Ln             | Math.Log
+Log            | Math.Log10 or Math.Log
+Lower          | stringValue.ToLower
+Max            | Math.Max
+Mid            | stringValue.Substring(x - 1, y)
+Min            | Math.Min
+Minute         | dateTime.Minute
+Mod            | x % y
+Month          | dateTime.Month
+Not            | !value
+Now            | DateTime.Now
+Or             | x \|\| y \|\| ...
+Pi             | Math.PI
+Power          | Math.Pow
+Radians        | double.DegreesToRadians
+Right          | stringValue.Substring(stringValue.Length - x)
+Round          | Math.Round
+RoundDown      | Math.Floor
+RoundUp        | Math.Ceiling
+Second         | dateTime.Second
+Sin            | Math.Sin
+Split          | stringValue.Split
+Sqrt           | Math.Sqrt
+StartsWith     | stringValue.StartsWith
+Substitute     | string.Replace
+Sum            | x + y + ...
+Tan            | Math.Tan
+Text           | obj.ToString
+Today          | DateTime.Today
+TrimEnds       | stringValue.Trim
+Trunc          | Math.Truncate
+Upper          | stringValue.ToUpper
+UTCNow         | DateTime.UtcNow
+UTCToday       | DateTime.UtcNow.Date
+Value          | decimal.Parse
+Weekday        | dateTime.DayOfWeek
+Year           | dateTime.Year
 
-Power Fx | .NET
---- | ---
-Abs | Math.Abs
-Acos | Math.ACos
-Acot
-AddColumns
-AmPm
-AmPmShort
-And | x && y && ...
-Asin | Math.Asin
-AsType
-Atan | Math.Atan
-Atan2 | Math.Atan2
-Average
-Blank | null
-Boolean
-Char | ((char)value).ToString()
-IsClock24
-Coalesce | x ?? y ?? ...
-ColorFade
-ColorValue
-Concat
-Concatenate | string.Concat
-Cos | Math.Cos
-Cot | 1.0 / Math.Tan
-Count
-CountA
-CountIf
-CountRows
-Date
-DateAdd
-DateDiff
-DateTime
-DateTimeValue | DateTime.Parse
-DateValue
-Day | dateTime.Day
-Dec2Hex
-Degrees | double.RadiansToDegrees
-DropColumns
-EDate
-EOMonth
-EncodeUrl
-EndsWith | stringValue.EndsWith
-Error
-Exp | Math.Exp
-Filter
-Find
-First
-FirstN
-ForAll
-GUID | Guid.NewGuid or Guid.Parse
-Hex2Dec
-Hour | dateTime.Hour
-If | x ? y : z
-IfError
-Index
-Int | Math.Floor
-IsBlank | x == null
-IsBlankOrError
-IsEmpty
-IsError
-IsNumeric
-ISOWeekNum
-IsToday
-Language
-Last
-LastN
-Left | stringValue.Substring(0, x)
-Len
-Ln | Math.Log
-Log | Math.Log10 or Math.Log
-LookUp
-Lower | stringValue.ToLower
-Max | Math.Max
-Mid | stringValue.Substring(x - 1, y)
-Min | Math.Min
-Minute | dateTime.Minute
-Mod | x % y
-Month | dateTime.Month
-MonthsLong
-MonthsShort
-Not | !value
-Now
-Or | x \|\| y \|\| ...
-ParseJSON
-Pi | Math.PI (constant)
-PlainText
-Power | Math.Pow
-Proper
-Radians | double.DegreesToRadians
-Rand
-RandBetween
-Refresh
-RenameColumns
-Replace
-RGBA
-Right | stringValue.Substring(stringValue.Length - x)
-Round | Math.Round
-RoundDown | Math.Floor
-RoundUp | Math.Ceiling
-Search
-Second | dateTime.Second
-Sequence
-ShowColumns
-Shuffle
-Sin | Math.Sin
-Sort
-SortByColumns
-Split
-Sqrt | Math.Sqrt
-StartsWith | stringValue.StartsWith
-StdevP
-Substitute | string.Replace
-Sum | x + y + ...
-Switch
-Table
-Tan | Math.Tan
-Text | obj.ToString
-Time
-TimeValue
-TimeZoneOffset
-Today
-Trace
-Trim
-TrimEnds | stringValue.Trim
-Trunc | Math.Truncate
-Upper | stringValue.ToUpper
-UTCNow | DateTime.UtcNow
-UTCToday | DateTime.UtcNow.Date
-Value | decimal.Parse
-VarP
-Weekday | dateTime.DayOfWeek
-WeekdaysLong
-WeekdaysShort
-WeekNum
-With
-Year | dateTime.Year
-
-# String interpolation
+## String interpolation
 
 string.Concat
 
-# Records
+## Records
 
 Dictionary<string, object?>
 
-# Tables
+## Tables
 
 List<Dictionary<string, object?>>
+
+## See also
+
+- [Operators and Identifiers](https://learn.microsoft.com/power-platform/power-fx/operators)
+- [Power Fx formula reference overview](https://learn.microsoft.com/power-platform/power-fx/formula-reference-overview)

@@ -1,6 +1,7 @@
-﻿namespace Bricelam.PowerFx.Linq;
+namespace Bricelam.PowerFx.Linq;
 
-public class LinqTranslatingVisitorTests : TranslatingTestBase
+// TODO: Test all types
+public class PowerFxTranslatorTests : TranslatorTestBase
 {
     [Fact]
     public void Error()
@@ -30,14 +31,6 @@ public class LinqTranslatingVisitorTests : TranslatingTestBase
     [InlineData("0.1", 0.1)]
     public void Constant_decimal(string formula, decimal expected)
         => FuncTest(formula, expected);
-
-    [Fact]
-    public void Constant_Blank()
-        => FuncTest("Blank()", default(object));
-
-    [Fact]
-    public void Constant_Pi()
-        => FuncTest("Pi()", Math.PI);
 
     [Fact]
     public void String_interpolation()
@@ -217,30 +210,13 @@ public class LinqTranslatingVisitorTests : TranslatingTestBase
     => FuncTest("[{Value:1}]", new List<Dictionary<string, object?>> { new() { { "Value", 1m } } });
 
     [Fact]
-    public void Call_Sum()
-        => FuncTest("Sum(1, 1)", 2m);
+    public void Named_formulas()
+    {
+        var config = new PowerFxLinqConfig();
+        config.NamedFormulas.Add("R", "D / 2");
 
-    [Fact]
-    public void Call_Sum_one()
-        => FuncTest("Sum(1)", 1m);
-
-    [Fact]
-    public void Call_Sum_many()
-        => FuncTest("Sum(1, 1, 1)", 3m);
-
-    [Fact]
-    public void Call_Sum_double()
-        => FuncTest("Sum(1, Value)", new { Value = 1.0 }, 2m);
-
-    [Fact]
-    public void Call_Sum_nullable_double()
-        => FuncTest("Sum(1, Value)", new { Value = (double?)1.0 }, 2m);
-
-    [Fact]
-    // TODO: Verify this should throw
-    public void Call_Sum_nullable_double_null()
-        => Assert.Throws<InvalidOperationException>(
-            () => ActionTest("Sum(1, Value)", new { Value = default(double?) }));
+        FuncTest(config, "2 * Pi() * R", new { D = 2m }, 2m * (decimal)Math.PI);
+    }
 
     [Fact]
     public void Call_Average()
@@ -267,31 +243,4 @@ public class LinqTranslatingVisitorTests : TranslatingTestBase
     public void Call_Average_nullable_double_null()
         => Assert.Throws<InvalidOperationException>(
             () => ActionTest("Average(1, Value)", new { Value = default(double?) }));
-
-    // TODO: Test all types
-    class TestEntity
-    {
-        public bool BooleanProperty { get; set; }
-        public bool? NullableBooleanProperty { get; set; }
-        public System.Drawing.Color ColorProperty { get; set; }
-        public DateTime DateTimeProperty { get; set; }
-        public DateTime? NullableDateTimeProperty { get; set; }
-        public DateTimeOffset DateTimeOffsetProperty { get; set; }
-        public DateTimeOffset? NullableDateTimeOffsetProperty { get; set; }
-        public decimal DecimalProperty { get; set; }
-        public decimal? NullableDecimalProperty { get; set; }
-        public double DoubleProperty { get; set; }
-        public double? NullableDoubleProperty { get; set; }
-        public float SingleProperty { get; set; }
-        public float? NullableSingleProperty { get; set; }
-        public Guid GuidProperty { get; set; }
-        public Guid? NullableGuidProperty { get; set; }
-        public int Int32Property { get; set; }
-        public int? NullableInt32Property { get; set; }
-        public long Int64Property { get; set; }
-        public long? NullableInt64Property { get; set; }
-        public string? StringProperty { get; set; }
-        public TimeSpan TimeSpanProperty { get; set; }
-        public TimeSpan? NullableTimeSpanProperty { get; set; }
-    }
 }

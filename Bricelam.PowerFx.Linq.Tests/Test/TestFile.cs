@@ -1,4 +1,4 @@
-﻿namespace Bricelam.PowerFx.Linq.Test;
+namespace Bricelam.PowerFx.Linq.Test;
 
 class TestFile : IDisposable
 {

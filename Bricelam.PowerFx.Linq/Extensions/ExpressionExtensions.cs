@@ -1,7 +1,10 @@
-﻿namespace System.Linq.Expressions;
+#pragma warning disable IDE0130
+
+namespace System.Linq.Expressions;
 
 static class ExpressionExtensions
 {
+    // TODO: Better way?
     static readonly Dictionary<Type, int> _typePrecindence = new()
     {
         { typeof(double), 0 },
@@ -43,7 +46,14 @@ static class ExpressionExtensions
         return Expression.Divide(left, right);
     }
 
-    private static (Expression Left, Expression Right) Lift(Expression left, Expression right)
+    public static BinaryExpression LiftAndModulo(Expression left, Expression right)
+    {
+        (left, right) = Lift(left, right);
+
+        return Expression.Modulo(left, right);
+    }
+
+    static (Expression Left, Expression Right) Lift(Expression left, Expression right)
     {
         var leftType = left.Type;
         var rightType = right.Type;

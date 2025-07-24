@@ -1,10 +1,11 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Reflection;
 
 #pragma warning disable IDE0130
 
 namespace Microsoft.PowerFx;
 
+// TODO: Consider making this public and letting consumers call it instead
 static class PowerFxConfigExtensions
 {
     static readonly Type _builtinFunctionsCoreType = Type.GetType(
