@@ -27,7 +27,5 @@ jobs:
       - name: Test
         run: dotnet test --no-build --configuration Release --verbosity normal
       - name: Publish
-        if: ${{ github.event_name != 'pull_request' }}
-        run: |
-          dotnet nuget add source --username bricelam --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name github https://nuget.pkg.github.com/bricelam/index.json
-          dotnet nuget push artifacts/package/release/*.nupkg --source github
+        #if: ${{ github.event_name != 'pull_request' }}
+        run: dotnet nuget push artifacts/package/release/*.nupkg --source https://www.myget.org/F/bricelam/api/v3/index.json --api-key ${{ secrets.MYGET_APIKEY }}
