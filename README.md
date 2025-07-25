@@ -39,4 +39,5 @@ var query = circles
 
 ## See also
 
+- [Bricelam.PowerFx.Linq Docs](https://www.bricelam.net/Bricelam.PowerFx.Linq)
 - [Microsoft Power Fx overview](https://learn.microsoft.com/power-platform/power-fx/overview)
