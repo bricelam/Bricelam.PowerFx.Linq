@@ -1,6 +1,4 @@
-# Bricelam.PowerFx.Linq
-
-![build status](https://img.shields.io/github/actions/workflow/status/bricelam/Bricelam.PowerFx.Linq/dotnet.yml?main) ![latest version](https://img.shields.io/myget/bricelam/v/Bricelam.PowerFx.Linq) ![downloads](https://img.shields.io/myget/bricelam/dt/Bricelam.PowerFx.Linq) ![license](https://img.shields.io/badge/license-MS--PL-green)
+# Getting Started
 
 Use Power Fx inside of LINQ.
 
@@ -16,7 +14,7 @@ dotnet add package Bricelam.PowerFx.Linq --source https://www.myget.org/F/bricel
 
 ## Usage
 
-The `PowerFxExpression` class allows you to create lambda expressions from formulas.
+The <xref:Bricelam.PowerFx.Linq.PowerFxExpression> class allows you to create lambda expressions from formulas.
 
 ```cs
 // TIP: Hardcoded formulas aren't very interesting, but imagine if they're
@@ -27,7 +25,7 @@ var predicate = PowerFxExpression.Predicate<Circle>(formula);
 var query = circles.Where(predicate);
 ```
 
-The `PowerFxQueryable` class provides queryable extension methods that use formulas.
+The <xref:Bricelam.PowerFx.Linq.PowerFxQueryable> class provides queryable extension methods that use formulas.
 
 ```cs
 var query = circles
