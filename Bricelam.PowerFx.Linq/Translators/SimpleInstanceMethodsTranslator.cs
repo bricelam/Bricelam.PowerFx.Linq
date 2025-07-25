@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace Bricelam.PowerFx.Linq.Translators;
 
@@ -28,11 +29,10 @@ class SimpleInstanceMethodsTranslator : IFunctionCallTranslator
     {
         if (_map.TryGetValue(functionName, out var mapping))
         {
-            var method = mapping.Type.GetMethod(mapping.MethodName, arguments.Skip(1).Select(a => a.Type).ToArray());
-            if (method is not null)
-            {
-                return Expression.Call(arguments[0], method, arguments.Skip(1));
-            }
+            var overloads = mapping.Type.GetMethods(BindingFlags.Instance | BindingFlags.Public)
+                .Where(m => m.Name == mapping.MethodName);
+
+            return ExpressionExtensions.CallBestOverload(arguments[0], overloads, arguments.Skip(1));
         }
 
         return null;

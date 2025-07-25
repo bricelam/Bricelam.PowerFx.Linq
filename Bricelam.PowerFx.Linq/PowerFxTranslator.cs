@@ -85,7 +85,11 @@ class PowerFxTranslator : TexlFunctionalVisitor<Expression, PowerFxTranslatorCon
 
         if (node.Op == UnaryOp.Percent)
         {
-            return Expression.Divide(child, Expression.Constant(100.0m));
+            return Expression.Divide(
+                child,
+                ExpressionExtensions.ConvertIfNeeded(
+                    Expression.Constant(100.0),
+                    child.Type));
         }
 
         throw new UnreachableException("Unexpected UnaryOp: " + node.Op);
@@ -236,7 +240,7 @@ class PowerFxTranslator : TexlFunctionalVisitor<Expression, PowerFxTranslatorCon
                     typeof(string).GetMethod(nameof(string.Substring), [typeof(int), typeof(int)])!,
                     [
                         Expression.Subtract(
-                                Expression.Convert(arguments[1], typeof(int)),
+                                ExpressionExtensions.ConvertIfNeeded(arguments[1], typeof(int)),
                                 Expression.Constant(1)),
                             arguments[2]
                     ]);
@@ -249,7 +253,7 @@ class PowerFxTranslator : TexlFunctionalVisitor<Expression, PowerFxTranslatorCon
                         // TODO: Protect against negative
                         Expression.Subtract(
                                 Expression.Property(arguments[0], nameof(string.Length)),
-                                Expression.Convert(arguments[1], typeof(int)))
+                                ExpressionExtensions.ConvertIfNeeded(arguments[1], typeof(int)))
                     ]);
 
             case "UTCToday":

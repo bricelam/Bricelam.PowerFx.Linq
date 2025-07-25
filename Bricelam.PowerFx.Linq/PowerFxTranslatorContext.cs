@@ -46,7 +46,11 @@ class PowerFxTranslatorContext
 
     public Expression Translate(string formula)
     {
-        var checkResult = _engine.Check(formula);
+        var parseOptions = _engine.GetDefaultParserOptionsCopy();
+        // TODO: Is this really a better default? Allow disabling?
+        parseOptions.NumberIsFloat = true;
+
+        var checkResult = _engine.Check(formula, parseOptions);
         checkResult.ThrowOnErrors();
 
         return checkResult.Parse.Root.Accept(new PowerFxTranslator(), this);

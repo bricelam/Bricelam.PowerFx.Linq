@@ -29,7 +29,7 @@ public class PowerFxTranslatorTests : TranslatorTestBase
     [Theory]
     [InlineData("1", 1.0)]
     [InlineData("0.1", 0.1)]
-    public void Constant_decimal(string formula, decimal expected)
+    public void Constant_number(string formula, double expected)
         => FuncTest(formula, expected);
 
     [Fact]
@@ -42,7 +42,7 @@ public class PowerFxTranslatorTests : TranslatorTestBase
 
     [Fact]
     public void Unary_minus()
-        => FuncTest("-(1)", -1m);
+        => FuncTest("-(1)", -1.0);
 
     [Fact]
     public void Unary_minus_double()
@@ -58,7 +58,7 @@ public class PowerFxTranslatorTests : TranslatorTestBase
 
     [Fact]
     public void Unary_percent()
-        => FuncTest("1%", 0.01m);
+        => FuncTest("1%", 0.01);
 
     [Fact]
     public void Binary_or()
@@ -74,75 +74,71 @@ public class PowerFxTranslatorTests : TranslatorTestBase
 
     [Fact]
     public void Binary_add()
-        => FuncTest("1 + 1", 2m);
+        => FuncTest("1 + 1", 2.0);
 
     [Fact]
     public void Binary_add_double()
-        => FuncTest("1 + Value", new { Value = 1.0 }, 2m);
+        => FuncTest("1 + Value", new { Value = 1.0 }, 2.0);
 
     [Fact]
     public void Binary_add_nullable_double()
-        => FuncTest("1 + Value", new { Value = (double?)1.0 }, 2m);
+        => FuncTest("1 + Value", new { Value = (double?)1.0 }, (double?)2.0);
 
     [Fact]
     public void Binary_add_nullable_double_null()
-        => Assert.Throws<InvalidOperationException>(
-            () => ActionTest("1 + Value", new { Value = default(double?) }));
+        => FuncTest("1 + Value", new { Value = default(double?) }, default(double?));
 
     [Fact]
     public void Binary_sub()
-        => FuncTest("1 - 1", 0m);
+        => FuncTest("1 - 1", 0.0);
 
     [Fact]
     public void Binary_sub_double()
-        => FuncTest("1 - Value", new { Value = 1.0 }, 0m);
+        => FuncTest("1 - Value", new { Value = 1.0 }, 0.0);
 
     [Fact]
     public void Binary_sub_nullable_double()
-        => FuncTest("1 - Value", new { Value = (double?)1.0 }, 0m);
+        => FuncTest("1 - Value", new { Value = (double?)1.0 }, (double?)0.0);
 
     [Fact]
     public void Binary_sub_nullable_double_null()
-        => Assert.Throws<InvalidOperationException>(
-            () => ActionTest("1 - Value", new { Value = default(double?) }));
+        => FuncTest("1 - Value", new { Value = default(double?) }, default(double?));
 
     [Fact]
     public void Binary_mul()
-        => FuncTest("1 * 0", 0m);
+        => FuncTest("1 * 0", 0.0);
 
     [Fact]
     public void Binary_mul_double()
-        => FuncTest("1 * Value", new { Value = 0.0 }, 0m);
+        => FuncTest("1 * Value", new { Value = 0.0 }, 0.0);
 
     [Fact]
     public void Binary_mul_nullable_double()
-        => FuncTest("1 * Value", new { Value = (double?)0.0 }, 0m);
+        => FuncTest("1 * Value", new { Value = (double?)0.0 }, (double?)0.0);
 
     [Fact]
     public void Binary_mul_nullable_double_null()
-        => Assert.Throws<InvalidOperationException>(
-            () => ActionTest("1 * Value", new { Value = default(double?) }));
+        => FuncTest("1 * Value", new { Value = default(double?) }, default(double?));
 
     [Fact]
     public void Binary_div()
-        => FuncTest("2 / 2", 1m);
+        => FuncTest("2 / 2", 1.0);
 
     [Fact]
     public void Binary_div_double()
-        => FuncTest("2 / Value", new { Value = 2.0 }, 1m);
+        => FuncTest("2 / Value", new { Value = 2.0 }, 1.0);
 
     [Fact]
     public void Binary_div_nullable_double()
-        => FuncTest("2 / Value", new { Value = (double?)2.0 }, 1m);
+        => FuncTest("2 / Value", new { Value = (double?)2.0 }, (double?)1.0);
 
     [Fact]
     public void Binary_div_nullable_double_null()
-        => Assert.Throws<InvalidOperationException>(
-            () => ActionTest("2 / Value", new { Value = default(double?) }));
+        => FuncTest("2 / Value", new { Value = default(double?) }, default(double?));
 
     [Fact]
     public void Binary_power()
-        => FuncTest("2 ^ 3", 8m);
+        => FuncTest("2 ^ 3", 8.0);
 
     [Fact]
     public void Binary_power_double()
@@ -191,7 +187,7 @@ public class PowerFxTranslatorTests : TranslatorTestBase
 
     [Fact]
     public void Record()
-        => FuncTest("{Value:1}", new Dictionary<string, object?> { { "Value", 1m } });
+        => FuncTest("{Value:1}", new Dictionary<string, object?> { { "Value", 1.0 } });
 
     [Fact]
     public void Table_empty()
@@ -199,15 +195,15 @@ public class PowerFxTranslatorTests : TranslatorTestBase
 
     [Fact]
     public void Table_value()
-        => FuncTest("[1]", new List<Dictionary<string, object?>> { new() { { "Value", 1m } } });
+        => FuncTest("[1]", new List<Dictionary<string, object?>> { new() { { "Value", 1.0 } } });
 
     [Fact]
     public void Table_value_expression()
-        => FuncTest("[1 + 1]", new List<Dictionary<string, object?>> { new() { { "Value", 2m } } });
+        => FuncTest("[1 + 1]", new List<Dictionary<string, object?>> { new() { { "Value", 2.0 } } });
 
     [Fact]
     public void Table_record()
-    => FuncTest("[{Value:1}]", new List<Dictionary<string, object?>> { new() { { "Value", 1m } } });
+    => FuncTest("[{Value:1}]", new List<Dictionary<string, object?>> { new() { { "Value", 1.0 } } });
 
     [Fact]
     public void Named_formulas()
@@ -215,20 +211,20 @@ public class PowerFxTranslatorTests : TranslatorTestBase
         var config = new PowerFxLinqConfig();
         config.NamedFormulas.Add("R", "D / 2");
 
-        FuncTest(config, "2 * Pi() * R", new { D = 2m }, 2m * (decimal)Math.PI);
+        FuncTest(config, "2 * Pi() * R", new { D = 2.0 }, 2.0 * Math.PI);
     }
 
     [Fact]
     public void Call_Average()
-        => FuncTest("Average(1, 1)", 1m);
+        => FuncTest("Average(1, 1)", 1.0);
 
     [Fact]
     public void Call_Average_one()
-        => FuncTest("Average(1)", 1m);
+        => FuncTest("Average(1)", 1.0);
 
     [Fact]
     public void Call_Average_many()
-        => FuncTest("Average(1, 1, 1)", 1m);
+        => FuncTest("Average(1, 1, 1)", 1.0);
 
     [Fact]
     public void Call_Average_double()
@@ -239,8 +235,6 @@ public class PowerFxTranslatorTests : TranslatorTestBase
         => FuncTest("Average(Value)", new { Value = (double?)1.0 }, (double?)1.0);
 
     [Fact]
-    // TODO: Verify this should throw
     public void Call_Average_nullable_double_null()
-        => Assert.Throws<InvalidOperationException>(
-            () => ActionTest("Average(1, Value)", new { Value = default(double?) }));
+        => FuncTest("Average(1, Value)", new { Value = default(double?) }, default(double?));
 }

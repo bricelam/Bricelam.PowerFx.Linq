@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace Bricelam.PowerFx.Linq.Translators;
 
@@ -44,12 +45,10 @@ class SimpleStaticMethodsTranslator : IFunctionCallTranslator
     {
         if (_map.TryGetValue(functionName, out var mapping))
         {
-            // TODO: Handle conversions better
-            var method = mapping.Type.GetMethod(mapping.MethodName, arguments.Select(a => a.Type).ToArray());
-            if (method is not null)
-            {
-                return Expression.Call(method, arguments);
-            }
+            var overloads = mapping.Type.GetMethods(BindingFlags.Static | BindingFlags.Public)
+                .Where(m => m.Name == mapping.MethodName);
+
+            return ExpressionExtensions.CallBestOverload(overloads, arguments);
         }
 
         return null;
