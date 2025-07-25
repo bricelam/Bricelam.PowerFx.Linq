@@ -1,6 +1,6 @@
 # Bricelam.PowerFx.Linq
 
-![build status](https://img.shields.io/github/actions/workflow/status/bricelam/Bricelam.PowerFx.Linq/dotnet.yml?main) ![latest version](https://img.shields.io/myget/bricelam/v/Bricelam.PowerFx.Linq) ![downloads](https://img.shields.io/myget/bricelam/dt/Bricelam.PowerFx.Linq) ![license](https://img.shields.io/badge/license-MS--PL-green)
+![build status](https://img.shields.io/github/actions/workflow/status/bricelam/Bricelam.PowerFx.Linq/dotnet.yml?main) ![latest version](https://img.shields.io/myget/bricelam/v/Bricelam.PowerFx.Linq) ![downloads](https://img.shields.io/myget/bricelam/dt/Bricelam.PowerFx.Linq) ![license](https://img.shields.io/github/license/bricelam/Bricelam.PowerFx.Linq)
 
 Use Power Fx inside of LINQ.
 
