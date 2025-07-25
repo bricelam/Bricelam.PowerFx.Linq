@@ -1,6 +1,6 @@
 # Bricelam.PowerFx.Linq
 
-![build status](https://img.shields.io/github/actions/workflow/status/bricelam/Bricelam.PowerFx.Linq/dotnet.yml?main) ![latest version](https://img.shields.io/nuget/v/Bricelam.PowerFx.Linq) ![downloads](https://img.shields.io/nuget/dt/Bricelam.PowerFx.Linq) ![license](https://img.shields.io/badge/license-MS--PL-green)
+![build status](https://img.shields.io/github/actions/workflow/status/bricelam/Bricelam.PowerFx.Linq/dotnet.yml?main) ![latest version](https://img.shields.io/myget/bricelam/v/Bricelam.PowerFx.Linq) ![downloads](https://img.shields.io/myget/bricelam/dt/Bricelam.PowerFx.Linq) ![license](https://img.shields.io/badge/license-MS--PL-green)
 
 Use Power Fx inside of LINQ.
 
@@ -8,10 +8,10 @@ This project translates Power Fx formulas into .NET Expression trees enabling yo
 
 ## Installation
 
-The latest prerelease version is available on [NuGet](https://www.nuget.org/packages/Bricelam.PowerFx.Linq).
+The latest prerelease version is available on [MyGet](https://www.myget.org/feed/bricelam/package/nuget/Bricelam.PowerFx.Linq).
 
 ```sh
-dotnet add package Bricelam.PowerFx.Linq
+dotnet add package Bricelam.PowerFx.Linq --source https://www.myget.org/F/bricelam/api/v3/index.json
 ```
 
 ## Usage
