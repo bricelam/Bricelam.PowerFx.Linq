@@ -27,5 +27,5 @@ jobs:
       - name: Test
         run: dotnet test --no-build --configuration Release --verbosity normal
       - name: Publish
-        #if: ${{ github.event_name != 'pull_request' }}
+        if: ${{ github.event_name != 'pull_request' }}
         run: dotnet nuget push artifacts/package/release/*.nupkg --source https://www.myget.org/F/bricelam/api/v3/index.json --api-key ${{ secrets.MYGET_APIKEY }}
