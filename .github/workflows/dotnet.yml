@@ -1,0 +1,31 @@
+name: .NET
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+      - name: Restore dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build --no-restore --configuration Release
+      - name: Test
+        run: dotnet test --no-build --configuration Release --verbosity normal
+      - name: Publish
+        if: ${{ github.event_name != 'pull_request' }}
+        run: dotnet nuget push artifacts/package/release/*.nupkg --source https://www.myget.org/F/bricelam/api/v3/index.json --api-key ${{ secrets.MYGET_APIKEY }}
