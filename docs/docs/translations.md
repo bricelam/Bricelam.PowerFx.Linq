@@ -33,83 +33,131 @@ x exactin y | y.Contains(x)
 
 ## Functions
 
-Power Fx       | .NET
--------------- | ----
-Abs            | Math.Abs
-Acos           | Math.ACos
-Acot           | (Math.Pi / 2.0) - Math.Atan
-And            | x && y && ...
-Asin           | Math.Asin
-Atan           | Math.Atan
-Atan2          | Math.Atan2
-Average        | (x + y + ...) / n
-Blank          | null
-Char           | ((char)value).ToString()
-Coalesce       | x ?? y ?? ...
-Concatenate    | string.Concat
-Cos            | Math.Cos
-Cot            | 1.0 / Math.Tan
-DateTimeValue  | DateTime.Parse
-Day            | dateTime.Day
-Degrees        | double.RadiansToDegrees
-EndsWith       | stringValue.EndsWith
-Exp            | Math.Exp
-GUID           | Guid.NewGuid or Guid.Parse
-Hour           | dateTime.Hour
-If             | x ? y : z
-Int            | Math.Floor
-IsBlank        | x == null
-Left           | stringValue.Substring(0, x)
-Len            | stringValue.Length
-Ln             | Math.Log
-Log            | Math.Log10 or Math.Log
-Lower          | stringValue.ToLower
-Max            | Math.Max
-Mid            | stringValue.Substring(x - 1, y)
-Min            | Math.Min
-Minute         | dateTime.Minute
-Mod            | x % y
-Month          | dateTime.Month
-Not            | !value
-Now            | DateTime.Now
-Or             | x \|\| y \|\| ...
-Pi             | Math.PI
-Power          | Math.Pow
-Radians        | double.DegreesToRadians
-Right          | stringValue.Substring(stringValue.Length - x)
-Round          | Math.Round
-RoundDown      | Math.Floor
-RoundUp        | Math.Ceiling
-Second         | dateTime.Second
-Sin            | Math.Sin
-Split          | stringValue.Split
-Sqrt           | Math.Sqrt
-StartsWith     | stringValue.StartsWith
-Substitute     | string.Replace
-Sum            | x + y + ...
-Tan            | Math.Tan
-Text           | obj.ToString
-Today          | DateTime.Today
-TrimEnds       | stringValue.Trim
-Trunc          | Math.Truncate
-Upper          | stringValue.ToUpper
-UTCNow         | DateTime.UtcNow
-UTCToday       | DateTime.UtcNow.Date
-Value          | decimal.Parse
-Weekday        | dateTime.DayOfWeek
-Year           | dateTime.Year
+Power Fx                      | .NET
+----------------------------- | ----
+Abs(x)                        | Math.Abs(x)
+Acos(x)                       | Math.ACos(x)
+Acot(x)                       | (Math.Pi / 2.0) - Math.Atan(x)
+And(x, y, ...)                | x && y && ...
+Asin(x)                       | Math.Asin(x)
+Atan(x)                       | Math.Atan(x)
+Atan2(x, y)                   | Math.Atan2(y, x)
+Average(x, y, ...)            | (x + y + ...) / n
+Blank()                       | null
+Char(x)                       | ((char)x).ToString()
+Coalesce(x, y, ...)           | x ?? y ?? ...
+Concatenate(x, y, ...)        | string.Concat(x, y, ...)
+Cos(x)                        | Math.Cos(x)
+Cot(x)                        | 1.0 / Math.Tan(x)
+DateTimeValue(x)              | DateTime.Parse(x)
+Day(dateTime)                 | dateTime.Day
+Degrees(x)                    | double.RadiansToDegrees(x)
+EndsWith(stringValue, x)      | stringValue.EndsWith(x)
+Exp(x)                        | Math.Exp(x)
+GUID()                        | Guid.NewGuid()
+GUID(x)                       | Guid.Parse(x)
+Hour(dateTime)                | dateTime.Hour
+If(x, y, z)                   | x ? y : z
+Int(x)                        | Math.Floor(x)
+IsBlank(x)                    | x == null
+Left(stringValue, x)          | stringValue.Substring(0, x)
+Len(stringValue)              | stringValue.Length
+Ln(x)                         | Math.Log(x)
+Log(x)                        | Math.Log10(x)
+Log(x, y)                     | Math.Log(x, y)
+Lower(stringValue)            | stringValue.ToLower()
+Max(x, y)                     | Math.Max(x, y)
+Mid(stringValue, x, y)        | stringValue.Substring(x - 1, y)
+Min(x, y)                     | Math.Min(x, y)
+Minute(dateTime)              | dateTime.Minute
+Mod(x, y)                     | x % y
+Month(dateTime)               | dateTime.Month
+Not(x)                        | !x
+Now()                         | DateTime.Now
+Or(x, y, ...)                 | x \|\| y \|\| ...
+Pi()                          | Math.PI
+Power(x, y)                   | Math.Pow(x, y)
+Radians(x)                    | double.DegreesToRadians(x)
+Right(stringValue, x)         | stringValue.Substring(stringValue.Length - x)
+Round(x, y)                   | Math.Round(x, y)
+Second(dateTime)              | dateTime.Second
+Sin(x)                        | Math.Sin(x)
+Split(stringValue, x)         | stringValue.Split(x)
+Sqrt(x)                       | Math.Sqrt(x)
+StartsWith(stringValue, x)    | stringValue.StartsWith(x)
+Substitute(stringValue, x, y) | stringValue.Replace(x, y)
+Sum(x, y, ...)                | x + y + ...
+Tan(x)                        | Math.Tan(x)
+Text(obj)                     | obj.ToString()
+Today()                       | DateTime.Today
+TrimEnds(stringValue)         | stringValue.Trim()
+Trunc(x)                      | Math.Truncate(x)
+Upper(stringValue)            | stringValue.ToUpper()
+UTCNow()                      | DateTime.UtcNow
+UTCToday()                    | DateTime.UtcNow.Date
+Value(x)                      | double.Parse(x)
+Weekday(dateTime)             | dateTime.DayOfWeek
+Year(dateTime)                | dateTime.Year
 
 ## String interpolation
 
-string.Concat
+String interpolation in Power Fx is translated to string concatenation in .NET.
+
+**Power Fx**
+
+```
+$"hello {x}"
+```
+
+**.NET**
+
+```cs
+"hello " + x
+```
 
 ## Records
 
-Dictionary<string, object?>
+Records in Power Fx are translated to dictionaries in .NET.
+
+**Power Fx**
+
+```
+{
+    Value: x
+}
+```
+
+**.NET**
+
+```cs
+new Dictionary<string, object?>
+{
+    { "Value", x }
+}
+```
 
 ## Tables
 
-List<Dictionary<string, object?>>
+Tables in Power Fx are translated to lists in .NET. The following example creates a single-column table using the inline value table syntax.
+
+**Power Fx**
+
+```
+[
+    x,
+    y
+]
+```
+
+**.NET**
+
+```cs
+new List<Dictionary<string, object?>>
+{
+    new() { { "Value", x } },
+    new() { { "Value", y } },
+}
+```
 
 ## See also
 

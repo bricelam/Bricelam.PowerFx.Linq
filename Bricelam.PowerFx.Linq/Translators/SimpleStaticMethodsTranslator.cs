@@ -13,9 +13,6 @@ class SimpleStaticMethodsTranslator : IFunctionCallTranslator
         { "Asin", (typeof(Math), nameof(Math.Asin)) },
         { "Atan", (typeof(Math), nameof(Math.Atan)) },
 
-        // TODO: Are these parameters backwards?
-        { "Atan2", (typeof(Math), nameof(Math.Atan2)) },
-
         // TODO: Handle more than three parameters; handle non-strings
         { "Concatenate", (typeof(string), nameof(string.Concat)) },
 
@@ -25,20 +22,21 @@ class SimpleStaticMethodsTranslator : IFunctionCallTranslator
         { "Exp", (typeof(Math), nameof(Math.Exp)) },
         { "Int", (typeof(Math), nameof(Math.Floor)) },
         { "Ln", (typeof(Math), nameof(Math.Log)) },
+
+        // TODO: Handle more than two parameters
         { "Max", (typeof(Math), nameof(Math.Max)) },
         { "Min", (typeof(Math), nameof(Math.Min)) },
+
         { "Power", (typeof(Math), nameof(Math.Pow)) },
         { "Radians", (typeof(double), nameof(double.DegreesToRadians)) },
         { "Round", (typeof(Math), nameof(Math.Round)) },
-        { "RoundDown", (typeof(Math), nameof(Math.Floor)) },
-        { "RoundUp", (typeof(Math), nameof(Math.Ceiling)) },
         { "Sin", (typeof(Math), nameof(Math.Sin)) },
         { "Sqrt", (typeof(Math), nameof(Math.Sqrt)) },
         { "Tan", (typeof(Math), nameof(Math.Tan)) },
         { "Trunc", (typeof(Math), nameof(Math.Truncate)) },
 
-        // TODO: Handle LanguageTag parameter
-        { "Value", (typeof(decimal), nameof(decimal.Parse)) }
+        // TODO: Handle LanguageTag parameter; honor NumberIsFloat
+        { "Value", (typeof(double), nameof(double.Parse)) }
     };
 
     public Expression? Translate(string functionName, IReadOnlyList<Expression> arguments)

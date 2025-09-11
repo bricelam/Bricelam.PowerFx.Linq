@@ -237,4 +237,8 @@ public class PowerFxTranslatorTests : TranslatorTestBase
     [Fact]
     public void Call_Average_nullable_double_null()
         => FuncTest("Average(1, Value)", new { Value = default(double?) }, default(double?));
+
+    [Fact]
+    public void Call_Atan2()
+        => FuncTest("Atan2(1, 0)", 0.0);
 }

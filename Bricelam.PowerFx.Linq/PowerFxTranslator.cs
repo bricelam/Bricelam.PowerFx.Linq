@@ -183,6 +183,14 @@ class PowerFxTranslator : TexlFunctionalVisitor<Expression, PowerFxTranslatorCon
                         typeof(Math).GetMethod(nameof(Math.Atan), [typeof(double)])!,
                         arguments));
 
+            case "Atan2":
+                return Expression.Call(
+                    typeof(Math).GetMethod(nameof(Math.Atan2), [typeof(double), typeof(double)])!,
+                    [
+                        arguments[1],
+                        arguments[0]
+                    ]);
+
             case "Average":
                 return ExpressionExtensions.LiftAndDivide(
                     SimpleBinaryOperatorsTranslator.CreateBinaryTree(
@@ -234,6 +242,7 @@ class PowerFxTranslator : TexlFunctionalVisitor<Expression, PowerFxTranslatorCon
                         : typeof(Math).GetMethod(nameof(Math.Log), [typeof(double), typeof(double)])!,
                     arguments);
 
+            // TODO: Handle just two parameters
             case "Mid":
                 return Expression.Call(
                     arguments[0],
