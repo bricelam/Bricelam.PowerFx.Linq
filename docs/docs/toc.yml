@@ -2,3 +2,5 @@
   href: getting-started.md
 - name: Supported Translations
   href: translations.md
+- name: API Reference
+  href: ../api/

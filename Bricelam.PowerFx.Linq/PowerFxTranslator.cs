@@ -199,6 +199,7 @@ class PowerFxTranslator : TexlFunctionalVisitor<Expression, PowerFxTranslatorCon
                     Expression.Constant((double)arguments.Count));
 
             case "Char":
+            case "UniChar":
                 return Expression.Call(
                     Expression.Convert(arguments.Single(), typeof(char)),
                     typeof(char).GetMethod(nameof(char.ToString), Type.EmptyTypes)!);
@@ -209,6 +210,19 @@ class PowerFxTranslator : TexlFunctionalVisitor<Expression, PowerFxTranslatorCon
                     Expression.Call(
                         typeof(Math).GetMethod(nameof(Math.Tan), [typeof(double)])!,
                         arguments));
+
+            case "DateTime":
+                return Expression.New(
+                    typeof(DateTime).GetConstructor(Enumerable.Repeat(typeof(int), arguments.Count).ToArray())!,
+                    arguments.Select(a => ExpressionExtensions.ConvertIfNeeded(a, typeof(int))));
+
+            case "EDate":
+                return Expression.Call(
+                    arguments[0],
+                    typeof(DateTime).GetMethod(nameof(DateTime.AddMonths), [typeof(int)])!,
+                    [
+                        ExpressionExtensions.ConvertIfNeeded(arguments[1], typeof(int))
+                    ]);
 
             case "GUID":
                 return Expression.Call(

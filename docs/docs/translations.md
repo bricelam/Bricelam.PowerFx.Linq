@@ -49,9 +49,11 @@ Coalesce(x, y, ...)           | x ?? y ?? ...
 Concatenate(x, y, ...)        | string.Concat(x, y, ...)
 Cos(x)                        | Math.Cos(x)
 Cot(x)                        | 1.0 / Math.Tan(x)
+DateTime(y, M, d, h, m, s, f) | new DateTime(y, M, d, h, m, s, f)
 DateTimeValue(x)              | DateTime.Parse(x)
 Day(dateTime)                 | dateTime.Day
 Degrees(x)                    | double.RadiansToDegrees(x)
+EDate(dateTime, x)            | dateTime.AddMonths(x)
 EndsWith(stringValue, x)      | stringValue.EndsWith(x)
 Exp(x)                        | Math.Exp(x)
 GUID()                        | Guid.NewGuid()
@@ -92,6 +94,7 @@ Text(obj)                     | obj.ToString()
 Today()                       | DateTime.Today
 TrimEnds(stringValue)         | stringValue.Trim()
 Trunc(x)                      | Math.Truncate(x)
+UniChar(x)                    | ((char)x).ToString()
 Upper(stringValue)            | stringValue.ToUpper()
 UTCNow()                      | DateTime.UtcNow
 UTCToday()                    | DateTime.UtcNow.Date

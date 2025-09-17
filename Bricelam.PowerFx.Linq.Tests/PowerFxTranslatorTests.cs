@@ -241,4 +241,20 @@ public class PowerFxTranslatorTests : TranslatorTestBase
     [Fact]
     public void Call_Atan2()
         => FuncTest("Atan2(1, 0)", 0.0);
+
+    [Fact]
+    public void Call_DateTime()
+        => FuncTest("DateTime(2025, 9, 16, 20, 45, 0)", new DateTime(2025, 9, 16, 20, 45, 0));
+
+    [Fact]
+    public void Call_DateTime_milliseconds()
+        => FuncTest("DateTime(2025, 9, 16, 20, 45, 0, 123)", new DateTime(2025, 9, 16, 20, 45, 0, 123));
+
+    [Fact]
+    public void Call_EDate()
+        => FuncTest("EDate(Value, 1)", new { Value = new DateTime(2025, 9, 16) }, new DateTime(2025, 10, 16));
+
+    [Fact]
+    public void Call_UniChar()
+        => FuncTest("UniChar(65)", "A");
 }
