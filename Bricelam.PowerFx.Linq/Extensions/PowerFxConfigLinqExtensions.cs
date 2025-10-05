@@ -5,8 +5,10 @@ using System.Reflection;
 
 namespace Microsoft.PowerFx;
 
-// TODO: Consider making this public and letting consumers call it instead
-static class PowerFxConfigExtensions
+/// <summary>
+/// Provides <see cref="PowerFxConfig"/> extension methods.
+/// </summary>
+public static class PowerFxConfigLinqExtensions
 {
     static readonly Type _builtinFunctionsCoreType = Type.GetType(
         "Microsoft.PowerFx.Core.Texl.BuiltinFunctionsCore, Microsoft.PowerFx.Core",
@@ -22,6 +24,10 @@ static class PowerFxConfigExtensions
         BindingFlags.Instance | BindingFlags.NonPublic,
         [_texlFunctionType]);
 
+    /// <summary>
+    /// Adds UTC functions: IsUTCToday, UTCNow, and UTCToday.
+    /// </summary>
+    /// <param name="config">The config to add the functions to.</param>
     public static void EnableUTCFunctions(this PowerFxConfig config)
     {
         var isUTCToday = _isUTCTodayField?.GetValue(null);

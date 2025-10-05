@@ -49,7 +49,7 @@ class PowerFxTranslator : TexlFunctionalVisitor<Expression, PowerFxTranslatorCon
         }
 
         // TODO: Handle Color.*
-        throw new PowerFxLinqException("Unknown identifier: " + node.Ident.Name);
+        throw new UnreachableException("Unknown identifier: " + node.Ident.Name);
     }
 
     public override Expression Visit(ParentNode node, PowerFxTranslatorContext context)
@@ -59,6 +59,7 @@ class PowerFxTranslator : TexlFunctionalVisitor<Expression, PowerFxTranslatorCon
         => throw new NotImplementedException();
 
     public override Expression Visit(StrInterpNode node, PowerFxTranslatorContext context)
+        // TODO: DRY (Concatenate function). Handle additonal arguments
         => Expression.Call(
             typeof(string).GetMethod(nameof(string.Concat), [typeof(object[])])!,
             Expression.NewArrayInit(
@@ -85,11 +86,9 @@ class PowerFxTranslator : TexlFunctionalVisitor<Expression, PowerFxTranslatorCon
 
         if (node.Op == UnaryOp.Percent)
         {
-            return Expression.Divide(
+            return ExpressionExtensions.LiftAndDivide(
                 child,
-                ExpressionExtensions.ConvertIfNeeded(
-                    Expression.Constant(100.0),
-                    child.Type));
+                Expression.Constant(100.0));
         }
 
         throw new UnreachableException("Unexpected UnaryOp: " + node.Op);
@@ -106,12 +105,12 @@ class PowerFxTranslator : TexlFunctionalVisitor<Expression, PowerFxTranslatorCon
             BinaryOp.And => Expression.AndAlso,
             BinaryOp.Mul => ExpressionExtensions.LiftAndMultiply,
             BinaryOp.Div => ExpressionExtensions.LiftAndDivide,
-            BinaryOp.Equal => Expression.Equal,
-            BinaryOp.NotEqual => Expression.NotEqual,
-            BinaryOp.Less => Expression.LessThan,
-            BinaryOp.LessEqual => Expression.LessThanOrEqual,
-            BinaryOp.Greater => Expression.GreaterThan,
-            BinaryOp.GreaterEqual => Expression.GreaterThanOrEqual,
+            BinaryOp.Equal => ExpressionExtensions.LiftAndEqual,
+            BinaryOp.NotEqual => ExpressionExtensions.LiftAndNotEqual,
+            BinaryOp.Less => ExpressionExtensions.LiftAndLessThan,
+            BinaryOp.LessEqual => ExpressionExtensions.LiftAndLessThanOrEqual,
+            BinaryOp.Greater => ExpressionExtensions.LiftAndGreaterThan,
+            BinaryOp.GreaterEqual => ExpressionExtensions.LiftAndGreaterThanOrEqual,
             _ => null
         };
         if (expressionFactory is not null)
@@ -132,14 +131,15 @@ class PowerFxTranslator : TexlFunctionalVisitor<Expression, PowerFxTranslatorCon
                     right,
                     typeof(string).GetMethod(nameof(string.Concat), [typeof(string), typeof(string)]));
 
+            // TODO: DRY (Power function)
             case BinaryOp.Power:
-                return ExpressionExtensions.ConvertIfNeeded(
-                    Expression.Call(
-                        instance: null,
-                        typeof(Math).GetMethod(nameof(Math.Pow))!,
+                return Expression.Call(
+                    instance: null,
+                    typeof(Math).GetMethod(nameof(Math.Pow))!,
+                    [
                         ExpressionExtensions.ConvertIfNeeded(left, typeof(double)),
-                        ExpressionExtensions.ConvertIfNeeded(right, typeof(double))),
-                    left.Type);
+                        ExpressionExtensions.ConvertIfNeeded(right, typeof(double))
+                    ]);
 
             case BinaryOp.In: // TODO: Case-insensitive
             case BinaryOp.Exactin:
@@ -147,7 +147,9 @@ class PowerFxTranslator : TexlFunctionalVisitor<Expression, PowerFxTranslatorCon
                     ? Expression.Call(
                         right,
                         typeof(string).GetMethod(nameof(string.Contains), [typeof(string)])!,
-                        left)
+                        [
+                            left
+                        ])
                     // TODO: Handle lists
                     : throw new NotImplementedException();
         }
@@ -174,21 +176,25 @@ class PowerFxTranslator : TexlFunctionalVisitor<Expression, PowerFxTranslatorCon
 
         switch (node.Head.Name)
         {
+            // TODO: Test Nullable, float, and decimal (all trigonomic functions)
             case "Acot":
                 return Expression.Subtract(
-                    Expression.Divide(
-                        Expression.Constant(Math.PI),
-                        Expression.Constant(2.0)),
-                    Expression.Call(
-                        typeof(Math).GetMethod(nameof(Math.Atan), [typeof(double)])!,
-                        arguments));
+                        Expression.Divide(
+                            Expression.Constant(Math.PI),
+                            Expression.Constant(2.0)),
+                        Expression.Call(
+                            typeof(Math).GetMethod(nameof(Math.Atan), [typeof(double)])!,
+                            [
+                                ExpressionExtensions.ConvertIfNeeded(arguments[0], typeof(double))
+                            ]));
 
             case "Atan2":
                 return Expression.Call(
                     typeof(Math).GetMethod(nameof(Math.Atan2), [typeof(double), typeof(double)])!,
                     [
-                        arguments[1],
-                        arguments[0]
+                        // NB: Arguments are reversed
+                        ExpressionExtensions.ConvertIfNeeded(arguments[1], typeof(double)),
+                        ExpressionExtensions.ConvertIfNeeded(arguments[0], typeof(double))
                     ]);
 
             case "Average":
@@ -198,10 +204,13 @@ class PowerFxTranslator : TexlFunctionalVisitor<Expression, PowerFxTranslatorCon
                         arguments),
                     Expression.Constant((double)arguments.Count));
 
+            case "Blank":
+                return new BlankExpression();
+
             case "Char":
             case "UniChar":
                 return Expression.Call(
-                    Expression.Convert(arguments.Single(), typeof(char)),
+                    Expression.Convert(arguments[0], typeof(char)),
                     typeof(char).GetMethod(nameof(char.ToString), Type.EmptyTypes)!);
 
             case "Cot":
@@ -209,12 +218,34 @@ class PowerFxTranslator : TexlFunctionalVisitor<Expression, PowerFxTranslatorCon
                     Expression.Constant(1.0),
                     Expression.Call(
                         typeof(Math).GetMethod(nameof(Math.Tan), [typeof(double)])!,
-                        arguments));
+                        [
+                            arguments[0]
+                        ]));
 
+            // TODO: Can we use CallBestOverload?
             case "DateTime":
-                return Expression.New(
-                    typeof(DateTime).GetConstructor(Enumerable.Repeat(typeof(int), arguments.Count).ToArray())!,
-                    arguments.Select(a => ExpressionExtensions.ConvertIfNeeded(a, typeof(int))));
+                return arguments.Count == 6
+                    ? Expression.New(
+                        typeof(DateTime).GetConstructor([typeof(int), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int)])!,
+                        [
+                            ExpressionExtensions.ConvertIfNeeded(arguments[0], typeof(int)),
+                            ExpressionExtensions.ConvertIfNeeded(arguments[1], typeof(int)),
+                            ExpressionExtensions.ConvertIfNeeded(arguments[2], typeof(int)),
+                            ExpressionExtensions.ConvertIfNeeded(arguments[3], typeof(int)),
+                            ExpressionExtensions.ConvertIfNeeded(arguments[4], typeof(int)),
+                            ExpressionExtensions.ConvertIfNeeded(arguments[5], typeof(int))
+                        ])
+                    : Expression.New(
+                        typeof(DateTime).GetConstructor([typeof(int), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int)])!,
+                        [
+                            ExpressionExtensions.ConvertIfNeeded(arguments[0], typeof(int)),
+                            ExpressionExtensions.ConvertIfNeeded(arguments[1], typeof(int)),
+                            ExpressionExtensions.ConvertIfNeeded(arguments[2], typeof(int)),
+                            ExpressionExtensions.ConvertIfNeeded(arguments[3], typeof(int)),
+                            ExpressionExtensions.ConvertIfNeeded(arguments[4], typeof(int)),
+                            ExpressionExtensions.ConvertIfNeeded(arguments[5], typeof(int)),
+                            ExpressionExtensions.ConvertIfNeeded(arguments[6], typeof(int))
+                        ]);
 
             case "EDate":
                 return Expression.Call(
@@ -224,21 +255,18 @@ class PowerFxTranslator : TexlFunctionalVisitor<Expression, PowerFxTranslatorCon
                         ExpressionExtensions.ConvertIfNeeded(arguments[1], typeof(int))
                     ]);
 
-            case "GUID":
-                return Expression.Call(
-                    arguments.Count == 0
-                        ? typeof(Guid).GetMethod(nameof(Guid.NewGuid), Type.EmptyTypes)!
-                        : typeof(Guid).GetMethod(nameof(Guid.Parse), [typeof(string)])!,
-                    arguments);
-
             case "If":
                 // TODO: Handle additional conditions
                 return Expression.Condition(arguments[0], arguments[1], arguments[2]);
 
-            // TODO: Handle empty strings
             case "IsBlank":
-                var argument = arguments.Single();
-                return Expression.Equal(argument, Expression.Constant(null, argument.Type));
+                return arguments[0].Type == typeof(string)
+                    ? Expression.Call(
+                        typeof(string).GetMethod(nameof(string.IsNullOrEmpty), [typeof(string)])!,
+                        [
+                            arguments[0]
+                        ])
+                    : Expression.Equal(arguments[0], Expression.Constant(null, arguments[0].Type));
 
             case "Left":
                 return Expression.Call(
@@ -246,15 +274,8 @@ class PowerFxTranslator : TexlFunctionalVisitor<Expression, PowerFxTranslatorCon
                     typeof(string).GetMethod(nameof(string.Substring), [typeof(int), typeof(int)])!,
                     [
                         Expression.Constant(0),
-                        arguments[1]
+                        ExpressionExtensions.ConvertIfNeeded(arguments[1], typeof(int))
                     ]);
-
-            case "Log":
-                return Expression.Call(
-                    arguments.Count == 1
-                        ? typeof(Math).GetMethod(nameof(Math.Log10), [typeof(double)])!
-                        : typeof(Math).GetMethod(nameof(Math.Log), [typeof(double), typeof(double)])!,
-                    arguments);
 
             // TODO: Handle just two parameters
             case "Mid":
@@ -263,9 +284,9 @@ class PowerFxTranslator : TexlFunctionalVisitor<Expression, PowerFxTranslatorCon
                     typeof(string).GetMethod(nameof(string.Substring), [typeof(int), typeof(int)])!,
                     [
                         Expression.Subtract(
-                                ExpressionExtensions.ConvertIfNeeded(arguments[1], typeof(int)),
-                                Expression.Constant(1)),
-                            arguments[2]
+                            ExpressionExtensions.ConvertIfNeeded(arguments[1], typeof(int)),
+                            Expression.Constant(1)),
+                        ExpressionExtensions.ConvertIfNeeded(arguments[2], typeof(int))
                     ]);
 
             case "Right":
@@ -275,13 +296,23 @@ class PowerFxTranslator : TexlFunctionalVisitor<Expression, PowerFxTranslatorCon
                     [
                         // TODO: Protect against negative
                         Expression.Subtract(
-                                Expression.Property(arguments[0], nameof(string.Length)),
-                                ExpressionExtensions.ConvertIfNeeded(arguments[1], typeof(int)))
+                            Expression.Property(arguments[0], nameof(string.Length)),
+                            ExpressionExtensions.ConvertIfNeeded(arguments[1], typeof(int)))
+                    ]);
+
+            // TODO: Handle LanguageTag parameter
+            case "Value":
+                return Expression.Call(
+                    context.NumberIsDecimal
+                        ? typeof(decimal).GetMethod(nameof(decimal.Parse), [typeof(string)])!
+                        : typeof(double).GetMethod(nameof(double.Parse), [typeof(string)])!,
+                    [
+                        arguments[0]
                     ]);
 
             case "UTCToday":
                 return Expression.Property(
-                    Expression.Property(null, typeof(DateTime).GetProperty(nameof(DateTime.UtcNow))!),
+                    Expression.Property(expression: null, typeof(DateTime), nameof(DateTime.UtcNow))!,
                     nameof(DateTime.Date));
         }
 

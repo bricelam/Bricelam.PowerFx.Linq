@@ -6,49 +6,164 @@ namespace Bricelam.PowerFx.Linq.Translators;
 class SimpleStaticMethodsTranslator : IFunctionCallTranslator
 {
     // TODO: Handle aggregates
-    static readonly Dictionary<string, (Type Type, string MethodName)> _map = new()
+    static readonly Dictionary<string, MethodInfo[]> _map = new()
     {
-        { "Abs", (typeof(Math), nameof(Math.Abs)) },
-        { "Acos", (typeof(Math), nameof(Math.Acos)) },
-        { "Asin", (typeof(Math), nameof(Math.Asin)) },
-        { "Atan", (typeof(Math), nameof(Math.Atan)) },
-
-        // TODO: Handle more than three parameters; handle non-strings
-        { "Concatenate", (typeof(string), nameof(string.Concat)) },
-
-        { "Cos", (typeof(Math), nameof(Math.Cos)) },
-        { "DateTimeValue", (typeof(DateTime), nameof(DateTime.Parse)) },
-        { "Degrees", (typeof(double), nameof(double.RadiansToDegrees)) },
-        { "Exp", (typeof(Math), nameof(Math.Exp)) },
-        { "Int", (typeof(Math), nameof(Math.Floor)) },
-        { "Ln", (typeof(Math), nameof(Math.Log)) },
-
-        // TODO: Handle more than two parameters
-        { "Max", (typeof(Math), nameof(Math.Max)) },
-        { "Min", (typeof(Math), nameof(Math.Min)) },
-
-        { "Power", (typeof(Math), nameof(Math.Pow)) },
-        { "Radians", (typeof(double), nameof(double.DegreesToRadians)) },
-        { "Round", (typeof(Math), nameof(Math.Round)) },
-        { "Sin", (typeof(Math), nameof(Math.Sin)) },
-        { "Sqrt", (typeof(Math), nameof(Math.Sqrt)) },
-        { "Tan", (typeof(Math), nameof(Math.Tan)) },
-        { "Trunc", (typeof(Math), nameof(Math.Truncate)) },
-
-        // TODO: Handle LanguageTag parameter; honor NumberIsFloat
-        { "Value", (typeof(double), nameof(double.Parse)) }
+        {
+            "Abs",
+            [
+                ..typeof(Math).GetMethods(nameof(Math.Abs)),
+                typeof(MathF).GetMethod(nameof(MathF.Abs))!
+            ]
+        },
+        {
+            "Acos",
+            [
+                typeof(Math).GetMethod(nameof(Math.Acos))!,
+                typeof(MathF).GetMethod(nameof(MathF.Acos))!
+            ]
+        },
+        {
+            "Asin",
+            [
+                typeof(Math).GetMethod(nameof(Math.Asin))!,
+                typeof(MathF).GetMethod(nameof(MathF.Asin))!
+            ]
+        },
+        {
+            "Atan",
+            [
+                typeof(Math).GetMethod(nameof(Math.Atan))!,
+                typeof(MathF).GetMethod(nameof(MathF.Atan))!
+            ]
+        },
+        {
+            // TODO: Handle more than four parameters
+            "Concatenate",
+            [
+                typeof(string).GetMethod(nameof(string.Concat), [typeof(string), typeof(string)])!,
+                typeof(string).GetMethod(nameof(string.Concat), [typeof(string), typeof(string), typeof(string)])!,
+                typeof(string).GetMethod(nameof(string.Concat), [typeof(string), typeof(string), typeof(string), typeof(string)])!
+            ]
+        },
+        {
+            "Cos",
+            [
+                typeof(Math).GetMethod(nameof(Math.Cos))!,
+                typeof(MathF).GetMethod(nameof(MathF.Cos))!
+            ]
+        },
+        {
+            "DateTimeValue",
+            [typeof(DateTime).GetMethod(nameof(DateTime.Parse), [typeof(string)])!]
+        },
+        {
+            "Degrees",
+            [
+                typeof(double).GetMethod(nameof(double.RadiansToDegrees))!,
+                typeof(float).GetMethod(nameof(float.RadiansToDegrees))!
+            ]
+        },
+        {
+            "Exp",
+            [
+                typeof(Math).GetMethod(nameof(Math.Exp))!,
+                typeof(MathF).GetMethod(nameof(MathF.Exp))!
+            ]
+        },
+        {
+            "GUID",
+            [
+                typeof(Guid).GetMethod(nameof(Guid.NewGuid), Type.EmptyTypes)!,
+                typeof(Guid).GetMethod(nameof(Guid.Parse), [typeof(string)])!
+            ]
+        },
+        {
+            "Int",
+            [
+                ..typeof(Math).GetMethods(nameof(Math.Floor)),
+                typeof(MathF).GetMethod(nameof(MathF.Floor))!
+            ]
+        },
+        {
+            "Ln",
+            [
+                typeof(Math).GetMethod(nameof(Math.Log), [typeof(double)])!,
+                typeof(MathF).GetMethod(nameof(MathF.Log), [typeof(float)])!
+            ]
+        },
+        {
+            "Log",
+            [
+                typeof(Math).GetMethod(nameof(Math.Log10), [typeof(double)])!,
+                typeof(MathF).GetMethod(nameof(MathF.Log10), [typeof(float)])!,
+                typeof(Math).GetMethod(nameof(Math.Log), [typeof(double), typeof(double)])!,
+                typeof(MathF).GetMethod(nameof(MathF.Log), [typeof(float), typeof(float)])!
+            ]
+        },
+        {
+            // TODO: Handle more than two parameters
+            "Max",
+            typeof(Math).GetMethods(nameof(Math.Max)).ToArray()
+        },
+        {
+            // TODO: Handle more than two parameters
+            "Min",
+            typeof(Math).GetMethods(nameof(Math.Min)).ToArray()
+        },
+        {
+            "Power",
+            [
+                typeof(Math).GetMethod(nameof(Math.Pow))!,
+                typeof(MathF).GetMethod(nameof(MathF.Pow))!
+            ]
+        },
+        {
+            "Radians",
+            [
+                typeof(double).GetMethod(nameof(double.DegreesToRadians))!,
+                typeof(float).GetMethod(nameof(float.DegreesToRadians))!
+            ]
+        },
+        {
+            "Round",
+            [
+                typeof(Math).GetMethod(nameof(Math.Round), [typeof(double), typeof(int)])!,
+                typeof(Math).GetMethod(nameof(Math.Round), [typeof(decimal), typeof(int)])!,
+                typeof(MathF).GetMethod(nameof(MathF.Round), [typeof(float), typeof(int)])!
+            ]
+        },
+        {
+            "Sin",
+            [
+                typeof(Math).GetMethod(nameof(Math.Sin))!,
+                typeof(MathF).GetMethod(nameof(MathF.Sin))!
+            ]
+        },
+        {
+            "Sqrt",
+            [
+                typeof(Math).GetMethod(nameof(Math.Sqrt))!,
+                typeof(MathF).GetMethod(nameof(MathF.Sqrt))!
+            ]
+        },
+        {
+            "Tan",
+            [
+                typeof(Math).GetMethod(nameof(Math.Tan))!,
+                typeof(MathF).GetMethod(nameof(MathF.Tan))!
+            ]
+        },
+        {
+            "Trunc",
+            [
+                ..typeof(Math).GetMethods(nameof(Math.Truncate)),
+                typeof(MathF).GetMethod(nameof(MathF.Truncate))!
+            ]
+        }
     };
 
     public Expression? Translate(string functionName, IReadOnlyList<Expression> arguments)
-    {
-        if (_map.TryGetValue(functionName, out var mapping))
-        {
-            var overloads = mapping.Type.GetMethods(BindingFlags.Static | BindingFlags.Public)
-                .Where(m => m.Name == mapping.MethodName);
-
-            return ExpressionExtensions.CallBestOverload(overloads, arguments);
-        }
-
-        return null;
-    }
+        => _map.TryGetValue(functionName, out var overloads)
+            ? ExpressionExtensions.CallBestOverload(overloads, arguments)
+            : null;
 }

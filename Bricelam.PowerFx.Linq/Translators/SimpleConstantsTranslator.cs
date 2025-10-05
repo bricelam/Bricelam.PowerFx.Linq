@@ -6,8 +6,6 @@ class SimpleConstantsTranslator : IFunctionCallTranslator
 {
     static readonly Dictionary<string, object?> _map = new()
     {
-        { "Blank", null },
-
         // NB: Translated to constant (and not property) to match C# compiler
         { "Pi", Math.PI }
     };

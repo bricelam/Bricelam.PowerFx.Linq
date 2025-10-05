@@ -9,15 +9,14 @@ class PowerFxTranslatorContext
     readonly ParameterExpression? _thisRecord;
     readonly IReadOnlyDictionary<string, string>? _namedFormulas;
     readonly Engine _engine;
+    readonly ParserOptions _parserOptions;
 
     public PowerFxTranslatorContext(PowerFxLinqConfig? linqConfig, ParameterExpression? thisRecord)
     {
         _thisRecord = thisRecord;
         _namedFormulas = linqConfig is null ? null : new Dictionary<string, string>(linqConfig.NamedFormulas);
 
-        // TODO: Allow additional configuration by PowerFxLinqConfig
         var config = new PowerFxConfig();
-        config.EnableUTCFunctions();
 
         if (_thisRecord is not null)
         {
@@ -26,7 +25,6 @@ class PowerFxTranslatorContext
             {
                 config.SymbolTable.AddVariable(
                     property.Name,
-                    // TODO: Lift all numbers to decimal?
                     PrimitiveValueConversions.TryGetFormulaType(property.PropertyType, out var formulaType)
                         ? formulaType
                         : FormulaType.UntypedObject);
@@ -41,16 +39,21 @@ class PowerFxTranslatorContext
             }
         }
 
+        linqConfig?.ConfigureEngine?.Invoke(config);
+
         _engine = new Engine(config);
+
+        _parserOptions = _engine.GetDefaultParserOptionsCopy();
+        _parserOptions.NumberIsFloat = true;
+        linqConfig?.ConfigureParser?.Invoke(_parserOptions);
     }
+
+    public bool NumberIsDecimal
+        => !_parserOptions.NumberIsFloat;
 
     public Expression Translate(string formula)
     {
-        var parseOptions = _engine.GetDefaultParserOptionsCopy();
-        // TODO: Is this really a better default? Allow disabling?
-        parseOptions.NumberIsFloat = true;
-
-        var checkResult = _engine.Check(formula, parseOptions);
+        var checkResult = _engine.Check(formula, _parserOptions);
         checkResult.ThrowOnErrors();
 
         return checkResult.Parse.Root.Accept(new PowerFxTranslator(), this);
@@ -68,7 +71,6 @@ class PowerFxTranslatorContext
             var property = _thisRecord.Type.GetProperty(identifier);
             if (property is not null)
             {
-                // TODO: Lift all numbers to decimal?
                 return Expression.Property(_thisRecord, property);
             }
         }
