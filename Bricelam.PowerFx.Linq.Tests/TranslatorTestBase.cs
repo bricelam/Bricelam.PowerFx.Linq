@@ -1,7 +1,25 @@
+using Microsoft.PowerFx;
+
 namespace Bricelam.PowerFx.Linq;
 
 public abstract class TranslatorTestBase
 {
+    protected static readonly PowerFxLinqConfig DecimalConfig = new()
+    {
+        ConfigureParser = o =>
+        {
+            o.NumberIsFloat = false;
+        },
+    };
+
+    protected static readonly PowerFxLinqConfig UTCConfig = new()
+    {
+        ConfigureEngine = c =>
+        {
+            c.EnableUTCFunctions();
+        },
+    };
+
     protected static void ActionTest(string formula)
         => ActionTest(config: null, formula);
 

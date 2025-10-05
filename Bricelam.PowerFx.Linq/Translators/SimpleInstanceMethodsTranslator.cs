@@ -5,36 +5,26 @@ namespace Bricelam.PowerFx.Linq.Translators;
 
 class SimpleInstanceMethodsTranslator : IFunctionCallTranslator
 {
-    static readonly Dictionary<string, (Type Type, string MethodName)> _map = new()
+    static readonly Dictionary<string, MethodInfo> _map = new()
     {
-        { "EndsWith", (typeof(string), nameof(string.EndsWith)) },
-        { "Lower", (typeof(string), nameof(string.ToLower)) },
-
-        // TODO: Handle multiple separators
-        { "Split", (typeof(string), nameof(string.Split)) },
-
-        { "StartsWith", (typeof(string), nameof(string.StartsWith)) },
+        { "EndsWith", typeof(string).GetMethod(nameof(string.EndsWith), [typeof(string)])! },
+        { "Lower", typeof(string).GetMethod(nameof(string.ToLower), Type.EmptyTypes)! },
+        { "Split", typeof(string).GetMethod(nameof(string.Split), [typeof(string)])! },
+        { "StartsWith", typeof(string).GetMethod(nameof(string.StartsWith), [typeof(string)])! },
 
         // TODO: Handle InstanceNumber parameter
-        { "Substitute", (typeof(string), nameof(string.Replace)) },
+        { "Substitute", typeof(string).GetMethod(nameof(string.Replace), [typeof(string), typeof(string)])! },
 
+        // TODO: Does this need a convert?
         // TODO: Handle format parameters
-        { "Text", (typeof(object), nameof(ToString)) },
+        { "Text", typeof(object).GetMethod(nameof(ToString), Type.EmptyTypes)! },
 
-        { "TrimEnds", (typeof(string), nameof(string.Trim)) },
-        { "Upper", (typeof(string), nameof(string.ToUpper)) }
+        { "TrimEnds", typeof(string).GetMethod(nameof(string.Trim), Type.EmptyTypes)! },
+        { "Upper", typeof(string).GetMethod(nameof(string.ToUpper), Type.EmptyTypes)! }
     };
 
     public Expression? Translate(string functionName, IReadOnlyList<Expression> arguments)
-    {
-        if (_map.TryGetValue(functionName, out var mapping))
-        {
-            var overloads = mapping.Type.GetMethods(BindingFlags.Instance | BindingFlags.Public)
-                .Where(m => m.Name == mapping.MethodName);
-
-            return ExpressionExtensions.CallBestOverload(arguments[0], overloads, arguments.Skip(1));
-        }
-
-        return null;
-    }
+        => _map.TryGetValue(functionName, out var method)
+            ? Expression.Call(arguments[0], method, arguments.Skip(1).ToArray())
+            : null;
 }

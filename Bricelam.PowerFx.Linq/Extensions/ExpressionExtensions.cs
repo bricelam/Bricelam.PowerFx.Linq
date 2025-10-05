@@ -2,20 +2,42 @@
 
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Reflection;
 using Bricelam.PowerFx.Linq;
+using Bricelam.PowerFx.Linq.Expressions;
 
 namespace System.Linq.Expressions;
 
 static class ExpressionExtensions
 {
-    // TODO: Better way?
-    static readonly Dictionary<Type, int> _typePrecindence = new()
+    static readonly List<Type> _types =
+    [
+        typeof(byte),
+        typeof(short),
+        typeof(int),
+        typeof(long),
+        typeof(float),
+        typeof(double),
+        typeof(decimal)
+    ];
+
+    static readonly int[,] _conversions = new[,]
     {
-        { typeof(double), 0 },
-        { typeof(double?), 1 },
-        { typeof(decimal), 2 },
-        { typeof(decimal?), 3 }
+        // byte
+        // |   short
+        // |   |   int
+        // |   |   |   long
+        // |   |   |   |   float
+        // |   |   |   |   |  double
+        // |   |   |   |   |  |  decimal
+        {  0,  1,  2,  3,  4, 5, 6 }, // byte
+        {  9,  0,  1,  2,  3, 4, 5 }, // short
+        { 10,  9,  0,  1,  7, 2, 3 }, // int
+        { 11, 10,  9,  0,  8, 7, 3 }, // long
+        { 15, 14, 13, 12,  0, 1, 2 }, // float
+        { 15, 14, 13, 12,  9, 0, 1 }, // double
+        { 15, 14, 13, 12, 10, 9, 0 }  // decimal
     };
 
     public static Expression CallBestOverload(IEnumerable<MethodInfo> overloads, IEnumerable<Expression> arguments)
@@ -24,19 +46,12 @@ static class ExpressionExtensions
     public static Expression CallBestOverload(Expression? instance, IEnumerable<MethodInfo> overloads, IEnumerable<Expression> arguments)
     {
         var argumentsList = arguments.ToList();
+
         var overloadsMap = overloads
             .Where(o => o.GetParameters().Length == argumentsList.Count)
             .ToDictionary(
                 o => o.GetParameters().Select(p => p.ParameterType).ToList(),
-                o => o,
                 new SequenceEqualComparer<Type>());
-
-        // Try for an exact match
-        if (overloadsMap.TryGetValue(argumentsList.Select(a => a.Type).ToList(), out var match))
-        {
-            return Expression.Call(instance, match, argumentsList);
-        }
-
         if (overloadsMap.Count == 0)
         {
             var method = overloadsMap.Values.First();
@@ -44,38 +59,86 @@ static class ExpressionExtensions
             throw new PowerFxLinqException($"No overload of '{method.DeclaringType!.Name}.{method.Name}' takes {argumentsList.Count} arguments.");
         }
 
-        // Convert to undrlying types if overloads don't support nullable
-        var nullableSupported = argumentsList.Count == 0
-            || overloadsMap.Keys.SelectMany(l => l).Any(t => t.IsNullable());
-        if (!nullableSupported)
+        // Try for an exact match
+        if (overloadsMap.TryGetValue(argumentsList.Select(a => a.Type).ToList(), out var match))
         {
+            return Expression.Call(instance, match, argumentsList);
+        }
+
+        MethodInfo? bestOverload = null;
+        IReadOnlyList<Type>? bestOverloadParameters = null;
+        var bestOverloadDistance = 0;
+        foreach (var overload in overloadsMap)
+        {
+            var distance = 0;
             for (var i = 0; i < argumentsList.Count; i++)
             {
-                var argument = argumentsList[i];
-                var underlyingType = Nullable.GetUnderlyingType(argument.Type);
-                if (underlyingType is not null)
-                    argumentsList[i] = Expression.Convert(argument, underlyingType);
+                var argumentType = argumentsList[i].Type;
+                var fromNullable = argumentType.IsNullable();
+                if (fromNullable)
+                {
+                    argumentType = argumentType.GenericTypeArguments[0];
+                }
+
+                var parameterType = overload.Key[i];
+                var toNullable = parameterType.IsNullable();
+                if (toNullable)
+                {
+                    parameterType = parameterType.GenericTypeArguments[0];
+                }
+
+                var argumentIndex = _types.IndexOf(argumentType);
+                var parameterIndex = _types.IndexOf(parameterType);
+
+                // TODO: Add nullable conversion cost
+                distance += _conversions[argumentIndex, parameterIndex];
             }
 
-            // Try again for an exact match
-            if (overloadsMap.TryGetValue(argumentsList.Select(a => a.Type).ToList(), out match))
+            if (bestOverload is null
+                || bestOverloadDistance > distance)
             {
-                return Expression.Call(instance, match, argumentsList);
+                bestOverload = overload.Value;
+                bestOverloadParameters = overload.Key;
             }
         }
 
-        // TODO: Look for the best upcast overlad
-        // TODO: Resort to the best downcast overload
-        {
-            var method = overloadsMap.Values.First();
-            throw new UnreachableException($"Inconcievable! No overload of '{method.DeclaringType!.Name}.{method.Name}' found.");
-        }
+        Debug.Assert(bestOverload is not null);
+        Debug.Assert(bestOverloadParameters is not null);
+
+        return Expression.Call(
+            instance,
+            bestOverload,
+            argumentsList
+                .Select((a, i) => ConvertIfNeeded(a, bestOverloadParameters[i]))
+                .ToArray());
     }
 
     public static Expression ConvertIfNeeded(Expression expression, Type type)
-        => expression.Type == type
-            ? expression
-            : Expression.Convert(expression, type);
+    {
+        if (expression.Type == type)
+            return expression;
+
+        if (expression is ConstantExpression constantExpression)
+        {
+            var value = constantExpression.Value;
+            if (value is not null)
+            {
+                var nullable = type.IsNullable();
+                var conversionType = nullable
+                    ? type.GenericTypeArguments[0]
+                    : type;
+                value = Convert.ChangeType(value, conversionType, CultureInfo.InvariantCulture);
+                if (nullable)
+                {
+                    value = type.GetConstructor([conversionType])!.Invoke([value]);
+                }
+            }
+
+            return Expression.Constant(value, type);
+        }
+
+        return Expression.Convert(expression, type);
+    }
 
     public static BinaryExpression LiftAndAdd(Expression left, Expression right)
     {
@@ -112,26 +175,120 @@ static class ExpressionExtensions
         return Expression.Modulo(left, right);
     }
 
+    public static BinaryExpression LiftAndCoalesce(Expression left, Expression right)
+    {
+        (left, right) = Lift(left, right);
+
+        return Expression.Coalesce(left, right);
+    }
+
+    public static BinaryExpression LiftAndEqual(Expression left, Expression right)
+    {
+        (left, right) = Lift(left, right);
+
+        return Expression.Equal(left, right);
+    }
+
+    public static BinaryExpression LiftAndNotEqual(Expression left, Expression right)
+    {
+        (left, right) = Lift(left, right);
+
+        return Expression.NotEqual(left, right);
+    }
+
+    public static BinaryExpression LiftAndLessThan(Expression left, Expression right)
+    {
+        (left, right) = Lift(left, right);
+
+        return Expression.LessThan(left, right);
+    }
+
+    public static BinaryExpression LiftAndLessThanOrEqual(Expression left, Expression right)
+    {
+        (left, right) = Lift(left, right);
+
+        return Expression.LessThanOrEqual(left, right);
+    }
+
+    public static BinaryExpression LiftAndGreaterThan(Expression left, Expression right)
+    {
+        (left, right) = Lift(left, right);
+
+        return Expression.GreaterThan(left, right);
+    }
+
+    public static BinaryExpression LiftAndGreaterThanOrEqual(Expression left, Expression right)
+    {
+        (left, right) = Lift(left, right);
+
+        return Expression.GreaterThanOrEqual(left, right);
+    }
+
+    // TODO: Can we share logic with CallBestOverload?
     static (Expression Left, Expression Right) Lift(Expression left, Expression right)
     {
         var leftType = left.Type;
         var rightType = right.Type;
+        if (leftType == rightType)
+            return (left, right);
 
-        return leftType == rightType
-            ? (left, right)
-            : _typePrecindence[leftType] > _typePrecindence[rightType]
-                ? (left, Expression.Convert(right, leftType))
-                : (Expression.Convert(left, rightType), right);
+        var nullable = false;
+        if (leftType.IsNullable())
+        {
+            nullable = true;
+            leftType = leftType.GenericTypeArguments[0];
+        }
+        if (rightType.IsNullable())
+        {
+            nullable = true;
+            rightType = rightType.GenericTypeArguments[0];
+        }
+
+        Type liftedType;
+        if (leftType == rightType)
+        {
+            liftedType = leftType;
+        }
+        else if (left is BlankExpression)
+        {
+            nullable = true;
+            liftedType = rightType;
+        }
+        else if (right is BlankExpression)
+        {
+            nullable = true;
+            liftedType = leftType;
+        }
+        else
+        {
+            var leftIndex = _types.IndexOf(leftType);
+            var rightIndex = _types.IndexOf(rightType);
+            if (leftIndex == -1 || rightIndex == -1)
+            {
+                throw new PowerFxLinqException($"Cannot lift operands of type '{left.Type}' and '{right.Type}'.");
+            }
+
+            liftedType = _conversions[leftIndex, rightIndex] < _conversions[rightIndex, leftIndex]
+                ? rightType
+                : leftType;
+        }
+
+        if (nullable && liftedType.IsValueType)
+        {
+            liftedType = typeof(Nullable<>).MakeGenericType(liftedType);
+        }
+
+        return (ConvertIfNeeded(left, liftedType), ConvertIfNeeded(right, liftedType));
     }
 
-    class SequenceEqualComparer<T> : IEqualityComparer<IEnumerable<T>>
+    class SequenceEqualComparer<T> : IEqualityComparer<IReadOnlyList<T>>
     {
-        public bool Equals(IEnumerable<T>? x, IEnumerable<T>? y)
+        public bool Equals(IReadOnlyList<T>? x, IReadOnlyList<T>? y)
             => x is null
                 ? y is null
                 : y is not null && Enumerable.SequenceEqual(x, y);
 
-        public int GetHashCode([DisallowNull] IEnumerable<T> obj)
+        public int GetHashCode([DisallowNull] IReadOnlyList<T> obj)
         {
             var result = 0;
 

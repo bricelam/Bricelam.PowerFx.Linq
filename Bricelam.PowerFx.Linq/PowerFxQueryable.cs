@@ -18,6 +18,18 @@ public static class PowerFxQueryable
     /// </summary>
     /// <typeparam name="TSource">The type of elements of <paramref name="source"/>.</typeparam>
     /// <param name="source">A sequence of values.</param>
+    /// <param name="columns">A dictionary of name-formula pairs of columns to add.</param>
+    /// <returns>A queryable whose elements are the result of adding the coluns to each elelemt of <paramref name="source"/>.</returns>
+    public static IQueryable<Dictionary<string, object?>> AddColumns<TSource>(
+        this IQueryable<TSource> source,
+        IReadOnlyDictionary<string, string> columns)
+        => AddColumns(source, columns.Select(c => (c.Key, c.Value)).ToArray());
+
+    /// <summary>
+    /// Adds columns to a sequence of values.
+    /// </summary>
+    /// <typeparam name="TSource">The type of elements of <paramref name="source"/>.</typeparam>
+    /// <param name="source">A sequence of values.</param>
     /// <param name="columns">The name-formula pairs of columns to add.</param>
     /// <returns>A queryable whose elements are the result of adding the coluns to each elelemt of <paramref name="source"/>.</returns>
     public static IQueryable<Dictionary<string, object?>> AddColumns<TSource>(
@@ -31,9 +43,22 @@ public static class PowerFxQueryable
     /// <typeparam name="TSource">The type of elements of <paramref name="source"/>.</typeparam>
     /// <param name="source">A sequence of values.</param>
     /// <param name="config">The configuration to use during translation of the formulas.</param>
+    /// <param name="columns">A dictionary of name-formula pairs of columns to add.</param>
+    /// <returns>A queryable whose elements are the result of adding the coluns to each elelemt of <paramref name="source"/>.</returns>
+    public static IQueryable<Dictionary<string, object?>> AddColumns<TSource>(
+        this IQueryable<TSource> source,
+        PowerFxLinqConfig? config,
+        IReadOnlyDictionary<string, string> columns)
+        => AddColumns(source, config, columns.Select(c => (c.Key, c.Value)).ToArray());
+
+    /// <summary>
+    /// Adds columns to a sequence of values.
+    /// </summary>
+    /// <typeparam name="TSource">The type of elements of <paramref name="source"/>.</typeparam>
+    /// <param name="source">A sequence of values.</param>
+    /// <param name="config">The configuration to use during translation of the formulas.</param>
     /// <param name="columns">The name-formula pairs of columns to add.</param>
     /// <returns>A queryable whose elements are the result of adding the coluns to each elelemt of <paramref name="source"/>.</returns>
-    // TODO: An overlad that takes named formlas directly?
     // TODO: A version that returns dynamic (via ExpandoObject)?
     public static IQueryable<Dictionary<string, object?>> AddColumns<TSource>(
         this IQueryable<TSource> source,

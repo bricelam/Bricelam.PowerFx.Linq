@@ -7,7 +7,7 @@ class SimpleBinaryOperatorsTranslator : IFunctionCallTranslator
     static readonly Dictionary<string, Func<Expression, Expression, BinaryExpression>> _map = new()
     {
         { "And", Expression.AndAlso },
-        { "Coalesce", Expression.Coalesce },
+        { "Coalesce", ExpressionExtensions.LiftAndCoalesce },
         { "Mod", ExpressionExtensions.LiftAndModulo },
         { "Or", Expression.OrElse },
 
