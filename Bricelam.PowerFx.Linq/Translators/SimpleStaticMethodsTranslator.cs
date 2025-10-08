@@ -11,29 +11,33 @@ class SimpleStaticMethodsTranslator : IFunctionCallTranslator
         {
             "Abs",
             [
-                ..typeof(Math).GetMethods(nameof(Math.Abs)),
-                typeof(MathF).GetMethod(nameof(MathF.Abs))!
+                typeof(Math).GetMethod(nameof(Math.Abs), [typeof(short)])!,
+                typeof(Math).GetMethod(nameof(Math.Abs), [typeof(int)])!,
+                typeof(Math).GetMethod(nameof(Math.Abs), [typeof(long)])!,
+                typeof(Math).GetMethod(nameof(Math.Abs), [typeof(float)])!,
+                typeof(Math).GetMethod(nameof(Math.Abs), [typeof(double)])!,
+                typeof(Math).GetMethod(nameof(Math.Abs), [typeof(decimal)])!
             ]
         },
         {
             "Acos",
             [
-                typeof(Math).GetMethod(nameof(Math.Acos))!,
-                typeof(MathF).GetMethod(nameof(MathF.Acos))!
+                typeof(Math).GetMethod(nameof(Math.Acos), [typeof(double)])!,
+                typeof(MathF).GetMethod(nameof(MathF.Acos), [typeof(float)])!
             ]
         },
         {
             "Asin",
             [
-                typeof(Math).GetMethod(nameof(Math.Asin))!,
-                typeof(MathF).GetMethod(nameof(MathF.Asin))!
+                typeof(Math).GetMethod(nameof(Math.Asin), [typeof(double)])!,
+                typeof(MathF).GetMethod(nameof(MathF.Asin), [typeof(float)])!
             ]
         },
         {
             "Atan",
             [
-                typeof(Math).GetMethod(nameof(Math.Atan))!,
-                typeof(MathF).GetMethod(nameof(MathF.Atan))!
+                typeof(Math).GetMethod(nameof(Math.Atan), [typeof(double)])!,
+                typeof(MathF).GetMethod(nameof(MathF.Atan), [typeof(float)])!
             ]
         },
         {
@@ -48,8 +52,8 @@ class SimpleStaticMethodsTranslator : IFunctionCallTranslator
         {
             "Cos",
             [
-                typeof(Math).GetMethod(nameof(Math.Cos))!,
-                typeof(MathF).GetMethod(nameof(MathF.Cos))!
+                typeof(Math).GetMethod(nameof(Math.Cos), [typeof(double)])!,
+                typeof(MathF).GetMethod(nameof(MathF.Cos), [typeof(float)])!
             ]
         },
         {
@@ -59,15 +63,15 @@ class SimpleStaticMethodsTranslator : IFunctionCallTranslator
         {
             "Degrees",
             [
-                typeof(double).GetMethod(nameof(double.RadiansToDegrees))!,
-                typeof(float).GetMethod(nameof(float.RadiansToDegrees))!
+                typeof(double).GetMethod(nameof(double.RadiansToDegrees), [typeof(double)])!,
+                typeof(float).GetMethod(nameof(float.RadiansToDegrees), [typeof(float)])!
             ]
         },
         {
             "Exp",
             [
-                typeof(Math).GetMethod(nameof(Math.Exp))!,
-                typeof(MathF).GetMethod(nameof(MathF.Exp))!
+                typeof(Math).GetMethod(nameof(Math.Exp), [typeof(double)])!,
+                typeof(MathF).GetMethod(nameof(MathF.Exp), [typeof(float)])!
             ]
         },
         {
@@ -80,8 +84,9 @@ class SimpleStaticMethodsTranslator : IFunctionCallTranslator
         {
             "Int",
             [
-                ..typeof(Math).GetMethods(nameof(Math.Floor)),
-                typeof(MathF).GetMethod(nameof(MathF.Floor))!
+                typeof(Math).GetMethod(nameof(Math.Floor), [typeof(double)])!,
+                typeof(Math).GetMethod(nameof(Math.Floor), [typeof(decimal)])!,
+                typeof(MathF).GetMethod(nameof(MathF.Floor), [typeof(float)])!
             ]
         },
         {
@@ -103,25 +108,41 @@ class SimpleStaticMethodsTranslator : IFunctionCallTranslator
         {
             // TODO: Handle more than two parameters
             "Max",
-            typeof(Math).GetMethods(nameof(Math.Max)).ToArray()
+            [
+                typeof(Math).GetMethod(nameof(Math.Max), [typeof(byte), typeof(byte)])!,
+                typeof(Math).GetMethod(nameof(Math.Max), [typeof(short), typeof(short)])!,
+                typeof(Math).GetMethod(nameof(Math.Max), [typeof(int), typeof(int)])!,
+                typeof(Math).GetMethod(nameof(Math.Max), [typeof(long), typeof(long)])!,
+                typeof(Math).GetMethod(nameof(Math.Max), [typeof(float), typeof(float)])!,
+                typeof(Math).GetMethod(nameof(Math.Max), [typeof(double), typeof(double)])!,
+                typeof(Math).GetMethod(nameof(Math.Max), [typeof(decimal), typeof(decimal)])!,
+            ]
         },
         {
             // TODO: Handle more than two parameters
             "Min",
-            typeof(Math).GetMethods(nameof(Math.Min)).ToArray()
+            [
+                typeof(Math).GetMethod(nameof(Math.Min), [typeof(byte), typeof(byte)])!,
+                typeof(Math).GetMethod(nameof(Math.Min), [typeof(short), typeof(short)])!,
+                typeof(Math).GetMethod(nameof(Math.Min), [typeof(int), typeof(int)])!,
+                typeof(Math).GetMethod(nameof(Math.Min), [typeof(long), typeof(long)])!,
+                typeof(Math).GetMethod(nameof(Math.Min), [typeof(float), typeof(float)])!,
+                typeof(Math).GetMethod(nameof(Math.Min), [typeof(double), typeof(double)])!,
+                typeof(Math).GetMethod(nameof(Math.Min), [typeof(decimal), typeof(decimal)])!,
+            ]
         },
         {
             "Power",
             [
-                typeof(Math).GetMethod(nameof(Math.Pow))!,
-                typeof(MathF).GetMethod(nameof(MathF.Pow))!
+                typeof(Math).GetMethod(nameof(Math.Pow), [typeof(double)])!,
+                typeof(MathF).GetMethod(nameof(MathF.Pow), [typeof(float)])!
             ]
         },
         {
             "Radians",
             [
-                typeof(double).GetMethod(nameof(double.DegreesToRadians))!,
-                typeof(float).GetMethod(nameof(float.DegreesToRadians))!
+                typeof(double).GetMethod(nameof(double.DegreesToRadians), [typeof(double)])!,
+                typeof(float).GetMethod(nameof(float.DegreesToRadians), [typeof(float)])!
             ]
         },
         {
@@ -135,29 +156,30 @@ class SimpleStaticMethodsTranslator : IFunctionCallTranslator
         {
             "Sin",
             [
-                typeof(Math).GetMethod(nameof(Math.Sin))!,
-                typeof(MathF).GetMethod(nameof(MathF.Sin))!
+                typeof(Math).GetMethod(nameof(Math.Sin), [typeof(double)])!,
+                typeof(MathF).GetMethod(nameof(MathF.Sin), [typeof(float)])!
             ]
         },
         {
             "Sqrt",
             [
-                typeof(Math).GetMethod(nameof(Math.Sqrt))!,
-                typeof(MathF).GetMethod(nameof(MathF.Sqrt))!
+                typeof(Math).GetMethod(nameof(Math.Sqrt), [typeof(double)])!,
+                typeof(MathF).GetMethod(nameof(MathF.Sqrt), [typeof(float)])!
             ]
         },
         {
             "Tan",
             [
-                typeof(Math).GetMethod(nameof(Math.Tan))!,
-                typeof(MathF).GetMethod(nameof(MathF.Tan))!
+                typeof(Math).GetMethod(nameof(Math.Tan), [typeof(double)])!,
+                typeof(MathF).GetMethod(nameof(MathF.Tan), [typeof(float)])!
             ]
         },
         {
             "Trunc",
             [
-                ..typeof(Math).GetMethods(nameof(Math.Truncate)),
-                typeof(MathF).GetMethod(nameof(MathF.Truncate))!
+                typeof(Math).GetMethod(nameof(Math.Truncate), [typeof(double)])!,
+                typeof(Math).GetMethod(nameof(Math.Truncate), [typeof(decimal)])!,
+                typeof(MathF).GetMethod(nameof(MathF.Truncate), [typeof(float)])!
             ]
         }
     };

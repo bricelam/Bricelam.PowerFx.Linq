@@ -7,12 +7,36 @@ public class SimpleStaticMethodsTranslatorTests : TranslatorTestBase
         => FuncTest("Max(0, 1)", 1.0);
 
     [Fact]
+    public void Max_byte()
+        => FuncTest("Max(0, Value)", new { Value = (byte)1 }, 1.0);
+
+    [Fact]
+    public void Max_short()
+        => FuncTest("Max(0, Value)", new { Value = (short)1 }, 1.0);
+
+    [Fact]
+    public void Max_int()
+        => FuncTest("Max(0, Value)", new { Value = 1 }, 1.0);
+
+    [Fact]
+    public void Max_long()
+        => FuncTest("Max(0, Value)", new { Value = 1L }, 1.0m);
+
+    [Fact]
+    public void Max_float()
+        => FuncTest("Max(0, Value)", new { Value = 1.0f }, 1.0);
+
+    [Fact]
     public void Max_double()
         => FuncTest("Max(0, Value)", new { Value = 1.0 }, 1.0);
 
     [Fact(Skip = "TODO: Is this valid?")]
     public void Max_nullable_double()
         => FuncTest("Max(0, Value)", new { Value = default(double?) }, 0.0);
+
+    [Fact]
+    public void Max_decimal()
+        => FuncTest(DecimalConfig, "Max(0, Value)", new { Value = 1.0m }, 1.0m);
 
     [Fact]
     public void Min()
@@ -36,17 +60,17 @@ public class SimpleStaticMethodsTranslatorTests : TranslatorTestBase
 
     [Fact]
     public void Round_decimal()
-        => FuncTest(DecimalConfig, "Round(3.14, 1)", 3.1);
+        => FuncTest(DecimalConfig, "Round(3.14, 1)", 3.1m);
 
     [Fact]
     public void Round_decimal_nullable()
-        => FuncTest("Round(Value, 1)", new { Value = (decimal?)3.14m }, 3.1);
+        => FuncTest("Round(Value, 1)", new { Value = (decimal?)3.14m }, 3.1m);
 
     [Fact]
     public void Round_float()
-        => FuncTest("Round(Value, 1)", new { Value = 3.14f }, 3.1);
+        => FuncTest("Round(Value, 1)", new { Value = 3.14f }, 3.1f);
 
     [Fact]
     public void Round_float_nullable()
-        => FuncTest("Round(Value, 1)", new { Value = (float?)3.14f }, 3.1);
+        => FuncTest("Round(Value, 1)", new { Value = (float?)3.14f }, 3.1f);
 }

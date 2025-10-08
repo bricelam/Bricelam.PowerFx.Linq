@@ -99,6 +99,7 @@ static class ExpressionExtensions
             {
                 bestOverload = overload.Value;
                 bestOverloadParameters = overload.Key;
+                bestOverloadDistance = distance;
             }
         }
 

@@ -135,7 +135,7 @@ class PowerFxTranslator : TexlFunctionalVisitor<Expression, PowerFxTranslatorCon
             case BinaryOp.Power:
                 return Expression.Call(
                     instance: null,
-                    typeof(Math).GetMethod(nameof(Math.Pow))!,
+                    typeof(Math).GetMethod(nameof(Math.Pow), [typeof(double), typeof(double)])!,
                     [
                         ExpressionExtensions.ConvertIfNeeded(left, typeof(double)),
                         ExpressionExtensions.ConvertIfNeeded(right, typeof(double))
@@ -179,14 +179,14 @@ class PowerFxTranslator : TexlFunctionalVisitor<Expression, PowerFxTranslatorCon
             // TODO: Test Nullable, float, and decimal (all trigonomic functions)
             case "Acot":
                 return Expression.Subtract(
-                        Expression.Divide(
-                            Expression.Constant(Math.PI),
-                            Expression.Constant(2.0)),
-                        Expression.Call(
-                            typeof(Math).GetMethod(nameof(Math.Atan), [typeof(double)])!,
-                            [
-                                ExpressionExtensions.ConvertIfNeeded(arguments[0], typeof(double))
-                            ]));
+                    Expression.Divide(
+                        Expression.Constant(Math.PI),
+                        Expression.Constant(2.0)),
+                    Expression.Call(
+                        typeof(Math).GetMethod(nameof(Math.Atan), [typeof(double)])!,
+                        [
+                            ExpressionExtensions.ConvertIfNeeded(arguments[0], typeof(double))
+                        ]));
 
             case "Atan2":
                 return Expression.Call(
