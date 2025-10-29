@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using Bricelam.PowerFx.Linq.Reflection;
 
 namespace Bricelam.PowerFx.Linq;
 
@@ -24,7 +25,7 @@ public static class PowerFxExpression
     /// <returns>The expression.</returns>
     public static Expression<Action> Action(PowerFxLinqConfig? config, string formula)
     {
-        var context = new PowerFxTranslatorContext(config, thisRecord: null);
+        var context = new PowerFxTranslatorContext(config, thisRecord: null, thisRecordPropertyProvider: null);
 
         return Expression.Lambda<Action>(context.Translate(formula));
     }
@@ -48,7 +49,8 @@ public static class PowerFxExpression
     public static Expression<Action<T>> Action<T>(PowerFxLinqConfig? config, string formula)
     {
         var thisRecord = Expression.Parameter(typeof(T), "x");
-        var context = new PowerFxTranslatorContext(config, thisRecord);
+        var propertyProvider = PropertyProvider.Create(typeof(T), expression: null);
+        var context = new PowerFxTranslatorContext(config, thisRecord, propertyProvider);
 
         return Expression.Lambda<Action<T>>(context.Translate(formula), thisRecord);
     }
@@ -71,7 +73,7 @@ public static class PowerFxExpression
     /// <returns>The expression.</returns>
     public static Expression<Func<TResult>> Func<TResult>(PowerFxLinqConfig? config, string formula)
     {
-        var context = new PowerFxTranslatorContext(config, thisRecord: null);
+        var context = new PowerFxTranslatorContext(config, thisRecord: null, thisRecordPropertyProvider: null);
 
         return Expression.Lambda<Func<TResult>>(context.Translate(formula));
     }
@@ -97,7 +99,8 @@ public static class PowerFxExpression
     public static Expression<Func<T, TResult>> Func<T, TResult>(PowerFxLinqConfig? config, string formula)
     {
         var thisRecord = Expression.Parameter(typeof(T), "x");
-        var context = new PowerFxTranslatorContext(config, thisRecord);
+        var propertyProvider = PropertyProvider.Create(typeof(T), expression: null);
+        var context = new PowerFxTranslatorContext(config, thisRecord, propertyProvider);
 
         return Expression.Lambda<Func<T, TResult>>(context.Translate(formula), thisRecord);
     }

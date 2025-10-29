@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using System.Reflection;
+using Bricelam.PowerFx.Linq.Reflection;
 
 namespace Bricelam.PowerFx.Linq;
 
@@ -69,18 +70,19 @@ public static class PowerFxQueryable
 
         var e = Expression.Parameter(typeof(TSource), "e");
 
+        var propertyProvider = PropertyProvider.Create(typeof(TSource), source.Expression);
         var initializers = new List<ElementInit>();
 
-        foreach (var property in typeof(TSource).GetProperties(BindingFlags.Instance | BindingFlags.Public))
+        foreach (var property in propertyProvider.GetProperties())
         {
             initializers.Add(
                 Expression.ElementInit(
                     _addMethod,
                     Expression.Constant(property.Name),
-                    Expression.Convert(Expression.Property(e, property), typeof(object))));
+                    Expression.Convert(property.CreateAccessExpression(e), typeof(object))));
         }
 
-        var context = new PowerFxTranslatorContext(config, e);
+        var context = new PowerFxTranslatorContext(config, e, propertyProvider);
 
         foreach (var column in columns)
         {

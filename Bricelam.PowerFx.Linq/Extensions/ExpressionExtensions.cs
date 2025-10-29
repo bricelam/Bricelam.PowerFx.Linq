@@ -274,9 +274,9 @@ static class ExpressionExtensions
                 : leftType;
         }
 
-        if (nullable && liftedType.IsValueType)
+        if (nullable)
         {
-            liftedType = typeof(Nullable<>).MakeGenericType(liftedType);
+            liftedType = liftedType.AsNullable();
         }
 
         return (ConvertIfNeeded(left, liftedType), ConvertIfNeeded(right, liftedType));

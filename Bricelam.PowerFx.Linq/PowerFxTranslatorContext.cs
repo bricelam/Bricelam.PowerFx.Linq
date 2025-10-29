@@ -1,4 +1,6 @@
+using System.Diagnostics;
 using System.Linq.Expressions;
+using Bricelam.PowerFx.Linq.Reflection;
 using Microsoft.PowerFx;
 using Microsoft.PowerFx.Types;
 
@@ -7,21 +9,28 @@ namespace Bricelam.PowerFx.Linq;
 class PowerFxTranslatorContext
 {
     readonly ParameterExpression? _thisRecord;
+    readonly PropertyProvider? _thisRecordPropertyProvider;
     readonly IReadOnlyDictionary<string, string>? _namedFormulas;
     readonly Engine _engine;
     readonly ParserOptions _parserOptions;
 
-    public PowerFxTranslatorContext(PowerFxLinqConfig? linqConfig, ParameterExpression? thisRecord)
+    public PowerFxTranslatorContext(
+        PowerFxLinqConfig? linqConfig,
+        ParameterExpression? thisRecord,
+        PropertyProvider? thisRecordPropertyProvider)
     {
         _thisRecord = thisRecord;
+        _thisRecordPropertyProvider = thisRecordPropertyProvider;
         _namedFormulas = linqConfig is null ? null : new Dictionary<string, string>(linqConfig.NamedFormulas);
 
         var config = new PowerFxConfig();
 
         if (_thisRecord is not null)
         {
+            Debug.Assert(_thisRecordPropertyProvider is not null);
+
             config.SymbolTable.AddVariable("ThisRecord", FormulaType.UntypedObject);
-            foreach (var property in _thisRecord.Type.GetProperties())
+            foreach (var property in _thisRecordPropertyProvider.GetProperties())
             {
                 config.SymbolTable.AddVariable(
                     property.Name,
@@ -68,10 +77,10 @@ class PowerFxTranslatorContext
                 return _thisRecord;
             }
 
-            var property = _thisRecord.Type.GetProperty(identifier);
+            var property = _thisRecordPropertyProvider!.GetProperty(identifier);
             if (property is not null)
             {
-                return Expression.Property(_thisRecord, property);
+                return property.CreateAccessExpression(_thisRecord);
             }
         }
 
