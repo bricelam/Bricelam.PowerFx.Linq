@@ -205,7 +205,7 @@ class PowerFxTranslator : TexlFunctionalVisitor<Expression, PowerFxTranslatorCon
                     Expression.Constant((double)arguments.Count));
 
             case "Blank":
-                return new BlankExpression();
+                return Expression.Constant(null);
 
             case "Char":
             case "UniChar":

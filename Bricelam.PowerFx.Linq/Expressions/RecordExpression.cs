@@ -9,8 +9,8 @@ class RecordExpression : Expression
     static readonly MethodInfo _dictionaryAddMethod = _dictionaryType
         .GetMethod(nameof(Dictionary<string, object?>.Add), [typeof(string), typeof(object)])!;
 
-    public RecordExpression(IReadOnlyDictionary<string, Expression> fields)
-        => Fields = fields;
+    public RecordExpression(IEnumerable<KeyValuePair<string, Expression>> fields)
+        => Fields = fields.ToDictionary();
 
     public override bool CanReduce
         => true;

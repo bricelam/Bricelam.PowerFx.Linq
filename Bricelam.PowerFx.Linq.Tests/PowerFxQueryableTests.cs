@@ -43,15 +43,14 @@ public class PowerFxQueryableTests
     [Fact]
     public void AddColumns_works_when_dictionary()
     {
-        var source = new List<Dictionary<string, object?>>
-        {
-            new() {
-                ["Value"] = 1.0
-            }
-        };
+        var source = Queryable.AsQueryable(
+            [
+                new Dictionary<string, object?> {
+                    ["Value"] = 1.0
+                }
+            ]);
 
         var result = source
-            .AsQueryable()
             .AddColumns(("Next", "Value + 1"))
             .ToList();
 
@@ -64,19 +63,20 @@ public class PowerFxQueryableTests
     [Fact]
     public void AddColumns_works_when_dictionary_with_nulls()
     {
-        var source = new List<Dictionary<string, object?>>
-        {
-            new() {
-                ["Value"] = null
-            },
-            new() {
-                ["Value"] = 1.0
-            }
-        };
+        var source = Queryable.AsQueryable(
+            new List<Dictionary<string, object?>>
+            {
+                new() {
+                    ["Value"] = null
+                },
+                new() {
+                    ["Value"] = 1.0
+                }
+            });
 
         var result = source
-            .AsQueryable()
             .AddColumns(("IsBlank", "IsBlank(Value)"))
+            .AddColumns(("Default", "Coalesce(Value, 0.0)"))
             .ToList();
 
         Assert.Collection(
@@ -85,47 +85,142 @@ public class PowerFxQueryableTests
             {
                 Assert.Null(i["Value"]);
                 Assert.True((bool)i["IsBlank"]!);
+                Assert.Equal(0.0, i["Default"]!);
             },
             i =>
             {
                 Assert.Equal((double?)1.0, i["Value"]);
                 Assert.False((bool)i["IsBlank"]!);
+                Assert.Equal(1.0, i["Default"]!);
             });
     }
 
     [Fact]
     public void AddColumns_throws_when_dictionary_all_nulls()
     {
-        var source = new List<Dictionary<string, object?>>
-        {
-            new() {
-                ["Value"] = null
-            },
-            new() {
-                ["Value"] = null
-            }
-        };
+        var source = Queryable.AsQueryable(
+            new List<Dictionary<string, object?>>
+            {
+                new() {
+                    ["Value"] = null
+                },
+                new() {
+                    ["Value"] = null
+                }
+            });
 
-        var ex = Assert.Throws<PowerFxLinqException>(
-            () => source
-                .AsQueryable()
-                .AddColumns(("IsBlank", "IsBlank(Value)"))
-                .ToList());
+        var result = source
+            .AddColumns(("IsBlank", "IsBlank(Value)"))
+            .AddColumns(("Default", "Coalesce(Value, 0.0)"))
+            .ToList();
 
-        Assert.Equal("Cannot determine the dictionary value types of the query source.", ex.Message);
+        Assert.All(
+            result,
+            i =>
+            {
+                Assert.Null(i["Value"]);
+                Assert.True((bool)i["IsBlank"]!);
+                Assert.Equal(0.0, i["Default"]!);
+            });
     }
 
     [Fact]
     public void AddColumns_throws_when_empty_and_dictionary()
     {
-        var source = new List<Dictionary<string, object?>>();
+        var source = Queryable.AsQueryable(
+            new List<Dictionary<string, object?>>());
 
         var ex = Assert.Throws<PowerFxLinqException>(
             () => source
-                .AsQueryable()
                 .AddColumns(("IsBlank", "IsBlank(Value)"))
                 .ToList());
 
         Assert.Equal("Cannot determine the dictionary keys of the query source.", ex.Message);
+    }
+
+    [Fact]
+    public void ShowColumns_works()
+    {
+        var source = Queryable.AsQueryable(
+            [
+                new
+                {
+                    Value = 1.0,
+                    IsBlank = false
+                }
+            ]);
+
+        var result = source
+            .ShowColumns("Value")
+            .ToList();
+
+        var i = Assert.Single(result);
+        var column = Assert.Single(i);
+        Assert.Equal("Value", column.Key);
+        Assert.Equal(1.0, column.Value);
+    }
+
+    [Fact]
+    public void ShowColumns_works_when_dictionary()
+    {
+        var source = Queryable.AsQueryable(
+            [
+                new Dictionary<string, object?> {
+                    ["Value"] = 1.0,
+                    ["IsBlank"] = false
+                }
+            ]);
+
+        var result = source
+            .ShowColumns("Value")
+            .ToList();
+
+        var i = Assert.Single(result);
+        var column = Assert.Single(i);
+        Assert.Equal("Value", column.Key);
+        Assert.Equal(1.0, column.Value);
+    }
+
+    [Fact]
+    public void DropColumns_works()
+    {
+        var source = Queryable.AsQueryable(
+            [
+                new
+                {
+                    Value = 1.0,
+                    IsBlank = false
+                }
+            ]);
+
+        var result = source
+            .DropColumns("IsBlank")
+            .ToList();
+
+        var i = Assert.Single(result);
+        var column = Assert.Single(i);
+        Assert.Equal("Value", column.Key);
+        Assert.Equal(1.0, column.Value);
+    }
+
+    [Fact]
+    public void DropColumns_works_when_dictionary()
+    {
+        var source = Queryable.AsQueryable(
+            [
+                new Dictionary<string, object?> {
+                    ["Value"] = 1.0,
+                    ["IsBlank"] = false
+                }
+            ]);
+
+        var result = source
+            .DropColumns("IsBlank")
+            .ToList();
+
+        var i = Assert.Single(result);
+        var column = Assert.Single(i);
+        Assert.Equal("Value", column.Key);
+        Assert.Equal(1.0, column.Value);
     }
 }

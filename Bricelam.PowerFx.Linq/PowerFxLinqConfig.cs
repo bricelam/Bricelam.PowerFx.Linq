@@ -11,8 +11,8 @@ public class PowerFxLinqConfig
     /// Initializes a new instance of the <see cref="PowerFxLinqConfig"/> class.
     /// </summary>
     /// <param name="namedFormulas">The initial set of <see cref="NamedFormulas"/>.</param>
-    public PowerFxLinqConfig(IReadOnlyDictionary<string, string>? namedFormulas = null)
-        => NamedFormulas = namedFormulas is null ? [] : new Dictionary<string, string>(namedFormulas);
+    public PowerFxLinqConfig(IEnumerable<KeyValuePair<string, string>>? namedFormulas = null)
+        => NamedFormulas = namedFormulas is null ? [] : namedFormulas.ToDictionary();
 
     /// <summary>
     /// Gets a dictionary of named formulas that can be referenced by other formulas during translation.

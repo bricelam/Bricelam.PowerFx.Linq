@@ -10,7 +10,7 @@ class PowerFxTranslatorContext
 {
     readonly ParameterExpression? _thisRecord;
     readonly PropertyProvider? _thisRecordPropertyProvider;
-    readonly IReadOnlyDictionary<string, string>? _namedFormulas;
+    readonly Dictionary<string, string>? _namedFormulas;
     readonly Engine _engine;
     readonly ParserOptions _parserOptions;
 
@@ -36,7 +36,9 @@ class PowerFxTranslatorContext
                     property.Name,
                     PrimitiveValueConversions.TryGetFormulaType(property.PropertyType, out var formulaType)
                         ? formulaType
-                        : FormulaType.UntypedObject);
+                        : property.PropertyType == typeof(object)
+                            ? FormulaType.Unknown // NB: Assumes these are scalars
+                            : FormulaType.UntypedObject);
             }
         }
 

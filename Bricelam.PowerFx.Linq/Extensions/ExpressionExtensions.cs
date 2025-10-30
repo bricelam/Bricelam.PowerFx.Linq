@@ -5,7 +5,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Reflection;
 using Bricelam.PowerFx.Linq;
-using Bricelam.PowerFx.Linq.Expressions;
 
 namespace System.Linq.Expressions;
 
@@ -49,7 +48,7 @@ static class ExpressionExtensions
 
         var overloadsMap = overloads
             .Where(o => o.GetParameters().Length == argumentsList.Count)
-            .ToDictionary(
+            .ToDictionary<MethodInfo, IReadOnlyList<Type>>(
                 o => o.GetParameters().Select(p => p.ParameterType).ToList(),
                 new SequenceEqualComparer<Type>());
         if (overloadsMap.Count == 0)
@@ -250,12 +249,12 @@ static class ExpressionExtensions
         {
             liftedType = leftType;
         }
-        else if (left is BlankExpression)
+        else if (leftType == typeof(object))
         {
             nullable = true;
             liftedType = rightType;
         }
-        else if (right is BlankExpression)
+        else if (rightType == typeof(object))
         {
             nullable = true;
             liftedType = leftType;
@@ -282,14 +281,14 @@ static class ExpressionExtensions
         return (ConvertIfNeeded(left, liftedType), ConvertIfNeeded(right, liftedType));
     }
 
-    class SequenceEqualComparer<T> : IEqualityComparer<IReadOnlyList<T>>
+    class SequenceEqualComparer<T> : IEqualityComparer<IEnumerable<T>>
     {
-        public bool Equals(IReadOnlyList<T>? x, IReadOnlyList<T>? y)
+        public bool Equals(IEnumerable<T>? x, IEnumerable<T>? y)
             => x is null
                 ? y is null
                 : y is not null && Enumerable.SequenceEqual(x, y);
 
-        public int GetHashCode([DisallowNull] IReadOnlyList<T> obj)
+        public int GetHashCode([DisallowNull] IEnumerable<T> obj)
         {
             var result = 0;
 

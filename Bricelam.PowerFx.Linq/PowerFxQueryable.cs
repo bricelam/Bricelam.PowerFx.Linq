@@ -23,7 +23,7 @@ public static class PowerFxQueryable
     /// <returns>A queryable whose elements are the result of adding the coluns to each elelemt of <paramref name="source"/>.</returns>
     public static IQueryable<Dictionary<string, object?>> AddColumns<TSource>(
         this IQueryable<TSource> source,
-        IReadOnlyDictionary<string, string> columns)
+        IEnumerable<KeyValuePair<string, string>> columns)
         => AddColumns(source, columns.Select(c => (c.Key, c.Value)).ToArray());
 
     /// <summary>
@@ -49,7 +49,7 @@ public static class PowerFxQueryable
     public static IQueryable<Dictionary<string, object?>> AddColumns<TSource>(
         this IQueryable<TSource> source,
         PowerFxLinqConfig? config,
-        IReadOnlyDictionary<string, string> columns)
+        IEnumerable<KeyValuePair<string, string>> columns)
         => AddColumns(source, config, columns.Select(c => (c.Key, c.Value)).ToArray());
 
     /// <summary>
@@ -100,8 +100,86 @@ public static class PowerFxQueryable
         return source.Select(selector);
     }
 
-    // TODO: Consder calling it ForAll
-    //public static IQueryable<Dictionary<string, object?>> Select<TSource>(
+    /// <summary>
+    /// Removes all but the specified columns from a sequence of values.
+    /// </summary>
+    /// <typeparam name="TSource">The type of elements of <paramref name="source"/>.</typeparam>
+    /// <param name="source">A sequence of values.</param>
+    /// <param name="columnNames">The names of columns to include in the result.</param>
+    /// <returns>A queryable whose elements are the result of removing all but the columns specified in <paramref name="columnNames"/> from each element of <paramref name="source"/>.</returns>
+    public static IQueryable<Dictionary<string, object?>> ShowColumns<TSource>(
+        this IQueryable<TSource> source,
+        params string[] columnNames)
+    {
+        ArgumentNullException.ThrowIfNull(columnNames);
+
+        var e = Expression.Parameter(typeof(TSource), "e");
+
+        var propertyProvider = PropertyProvider.Create(typeof(TSource), source.Expression);
+        var initializers = new List<ElementInit>();
+
+        foreach (var columnName in columnNames)
+        {
+            var property = propertyProvider.GetProperty(columnName)
+                ?? throw new PowerFxLinqException($"Column '{columnName}' not found.");
+
+            initializers.Add(
+                Expression.ElementInit(
+                    _addMethod,
+                    Expression.Constant(property.Name),
+                    Expression.Convert(property.CreateAccessExpression(e), typeof(object))));
+        }
+
+        var selector = Expression.Lambda<Func<TSource, Dictionary<string, object?>>>(
+            Expression.ListInit(Expression.New(_dictionaryType), initializers),
+            e);
+
+        return source.Select(selector);
+    }
+
+    /// <summary>
+    /// Removes the specified columns from a sequence of values.
+    /// </summary>
+    /// <typeparam name="TSource">The type of elements of <paramref name="source"/>.</typeparam>
+    /// <param name="source">A sequence of values.</param>
+    /// <param name="columnNames">The names of columns to exclude from the result.</param>
+    /// <returns>A queryable whose elements are the result of removing the columns specified in <paramref name="columnNames"/> from each element of <paramref name="source"/>.</returns>
+    public static IQueryable<Dictionary<string, object?>> DropColumns<TSource>(
+        this IQueryable<TSource> source,
+        params string[] columnNames)
+    {
+        ArgumentNullException.ThrowIfNull(columnNames);
+
+        var e = Expression.Parameter(typeof(TSource), "e");
+
+        var propertyProvider = PropertyProvider.Create(typeof(TSource), source.Expression);
+        var columnsNotRemoved = new HashSet<string>(columnNames);
+        var initializers = new List<ElementInit>();
+
+        foreach (var property in propertyProvider.GetProperties())
+        {
+            if (columnsNotRemoved.Remove(property.Name))
+                continue;
+
+            initializers.Add(
+                Expression.ElementInit(
+                    _addMethod,
+                    Expression.Constant(property.Name),
+                    Expression.Convert(property.CreateAccessExpression(e), typeof(object))));
+        }
+
+        if (columnsNotRemoved.Count != 0)
+            throw new PowerFxLinqException("Columns not found: " + string.Join(", ", columnsNotRemoved));
+
+        var selector = Expression.Lambda<Func<TSource, Dictionary<string, object?>>>(
+            Expression.ListInit(Expression.New(_dictionaryType), initializers),
+            e);
+
+        return source.Select(selector);
+    }
+
+    // TODO
+    //public static IQueryable<Dictionary<string, object?>> ForAll<TSource>(
     //    this IQueryable<TSource> source,
     //    string formula);
 }

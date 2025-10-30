@@ -48,7 +48,7 @@ abstract class PropertyProvider
             else if (expression is ConstantExpression constantExpression
                 && constantExpression.Value is IEnumerable<Dictionary<string, object?>> source)
             {
-                var keysWithoutType = new List<string>();
+                var keysWithUnknownType = new List<string>();
 
                 using var enumerator = source.GetEnumerator();
                 if (!enumerator.MoveNext())
@@ -60,34 +60,34 @@ abstract class PropertyProvider
                 {
                     if (property.Value is null)
                     {
-                        keysWithoutType.Add(property.Key);
+                        keysWithUnknownType.Add(property.Key);
                         continue;
                     }
 
-                    properties.Add(property.Key, property.Value.GetType());
+                    properties.Add(property.Key, property.Value.GetType().AsNullable());
                 }
 
-                while (keysWithoutType.Count != 0 && enumerator.MoveNext())
+                while (keysWithUnknownType.Count != 0 && enumerator.MoveNext())
                 {
                     var item = enumerator.Current;
 
-                    for (var i = keysWithoutType.Count - 1; i >= 0; i--)
+                    for (var i = keysWithUnknownType.Count - 1; i >= 0; i--)
                     {
-                        var key = keysWithoutType[i];
+                        var key = keysWithUnknownType[i];
 
                         var value = item[key];
                         if (value is not null)
                         {
+                            // NB: Assumes all columns could contain null
                             properties.Add(key, value.GetType().AsNullable());
-                            keysWithoutType.Remove(key);
+                            keysWithUnknownType.Remove(key);
                         }
                     }
                 }
 
-                if (keysWithoutType.Count != 0)
+                foreach (var key in keysWithUnknownType)
                 {
-                    // TODO: Could these somehow still work by injecting a BlankExpression? Or an UnknownNullableType node?
-                    throw new PowerFxLinqException("Cannot determine the dictionary value types of the query source.");
+                    properties.Add(key, typeof(object));
                 }
             }
             else
