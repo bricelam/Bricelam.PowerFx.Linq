@@ -48,7 +48,6 @@ class PowerFxTranslator : TexlFunctionalVisitor<Expression, PowerFxTranslatorCon
             return translation;
         }
 
-        // TODO: Handle Color.*
         throw new UnreachableException("Unknown identifier: " + node.Ident.Name);
     }
 
@@ -67,8 +66,10 @@ class PowerFxTranslator : TexlFunctionalVisitor<Expression, PowerFxTranslatorCon
                 node.ChildNodes.Select(n => Expression.Convert(n.Accept(this, context), typeof(object)))));
 
     public override Expression Visit(DottedNameNode node, PowerFxTranslatorContext context)
-        // TODO: Handle records
-        => Expression.Property(node.Left.Accept(this, context), node.Right.Name);
+    {
+        // TODO: Handle records; Handle Color.* and ErrorKind.*
+        return Expression.Property(node.Left.Accept(this, context), node.Right.Name);
+    }
 
     public override Expression Visit(UnaryOpNode node, PowerFxTranslatorContext context)
     {

@@ -293,6 +293,26 @@ public class PowerFxTranslatorTests : TranslatorTestBase
         => FuncTest("EDate(Value, 1)", new { Value = new DateTime(2025, 9, 16) }, new DateTime(2025, 10, 16));
 
     [Fact]
+    public void Call_Error()
+    {
+        var ex = Assert.Throws<PowerFxLinqException>(
+            () => ActionTest("Error(\"This is a test.\")"));
+
+        Assert.Equal("This is a test.", ex.Message);
+        //Assert.Equal(ErrorKind.Custom, ex.Kind);
+    }
+    
+    [Fact]
+    public void Call_Error_with_kind()
+    {
+        var ex = Assert.Throws<PowerFxLinqException>(
+            () => ActionTest("Error({Kind: ErrorKind.Unknown, Message: \"This is a test.\"})"));
+
+        Assert.Equal("This is a test.", ex.Message);
+        //Assert.Equal(ErrorKind.Custom, ex.Kind);
+    }
+
+    [Fact]
     public void Call_UniChar()
         => FuncTest("UniChar(65)", "A");
 
