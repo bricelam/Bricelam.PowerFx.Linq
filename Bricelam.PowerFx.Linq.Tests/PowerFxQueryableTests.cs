@@ -1,3 +1,6 @@
+using Bricelam.PowerFx.Linq.Test;
+using Microsoft.Data.Sqlite;
+
 namespace Bricelam.PowerFx.Linq;
 
 public class PowerFxQueryableTests
@@ -179,6 +182,28 @@ public class PowerFxQueryableTests
         var column = Assert.Single(i);
         Assert.Equal("Value", column.Key);
         Assert.Equal(1.0, column.Value);
+    }
+
+    [Fact]
+    public void ShowColumns_works_when_EF_and_AddColumns()
+    {
+        using var connection = new SqliteConnection("DataSource=:memory:");
+        connection.Open();
+
+        using var db = new TestDbContext(connection);
+        db.Database.EnsureCreated();
+        db.Entities.Add(new TestEntity { Value = 1.0 });
+        db.SaveChanges();
+
+        var result = db.Entities
+            .AddColumns(("Next", "Value + 1"))
+            .ShowColumns("Next")
+            .ToList();
+
+        var i = Assert.Single(result);
+        var column = Assert.Single(i);
+        Assert.Equal("Next", column.Key);
+        Assert.Equal(2.0, column.Value);
     }
 
     [Fact]

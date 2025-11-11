@@ -142,7 +142,7 @@ abstract class PropertyProvider
 
     class DictionaryPropertyProvider : PropertyProvider
     {
-        static readonly PropertyInfo _itemProperty = _dictionaryType.GetProperty("Item")!;
+        static readonly MethodInfo _itemGetMethod = _dictionaryType.GetProperty("Item")!.GetMethod!;
 
         readonly Dictionary<string, Type> _properties;
 
@@ -172,7 +172,7 @@ abstract class PropertyProvider
 
             public override Expression CreateAccessExpression(ParameterExpression parameter)
                 => ExpressionExtensions.ConvertIfNeeded(
-                    Expression.Property(parameter, _itemProperty, Expression.Constant(_property.Key)),
+                    Expression.Call(parameter, _itemGetMethod, Expression.Constant(_property.Key)),
                     _property.Type);
         }
     }
