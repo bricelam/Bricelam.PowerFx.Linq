@@ -1,5 +1,6 @@
 using Bricelam.PowerFx.Linq.Test;
 using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
 
 namespace Bricelam.PowerFx.Linq;
 
@@ -195,11 +196,19 @@ public class PowerFxQueryableTests
         db.Entities.Add(new TestEntity { Value = 1.0 });
         db.SaveChanges();
 
-        var result = db.Entities
+        var query = db.Entities
             .AddColumns(("Next", "Value + 1"))
-            .ShowColumns("Next")
+            .ShowColumns("Next");
+        var sql = query.ToQueryString();
+        var result = query
             .ToList();
 
+        Assert.Equal(
+            """
+            SELECT "e"."Value" + 1.0
+            FROM "Entities" AS "e"
+            """,
+            sql);
         var i = Assert.Single(result);
         var column = Assert.Single(i);
         Assert.Equal("Next", column.Key);

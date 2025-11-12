@@ -7,31 +7,14 @@ namespace Bricelam.PowerFx.Linq.Reflection;
 abstract class PropertyProvider
 {
     static readonly Type _dictionaryType = typeof(Dictionary<string, object?>);
-    static readonly MethodInfo _queryableSelectMethod = Enumerable.First(
-        from m in typeof(Queryable).GetMethods()
-        where m.Name == nameof(Queryable.Select)
-        let parameters = m.GetParameters()
-        where parameters.Length == 2
-            && parameters[0].ParameterType.IsConstructedGenericType
-            && parameters[0].ParameterType.GetGenericTypeDefinition() == typeof(IQueryable<>)
-            && parameters[1].ParameterType.IsConstructedGenericType
-            && parameters[1].ParameterType.GetGenericTypeDefinition() == typeof(Expression<>)
-            && parameters[1].ParameterType.GenericTypeArguments[0].IsConstructedGenericType
-            && parameters[1].ParameterType.GenericTypeArguments[0].GetGenericTypeDefinition() == typeof(Func<,>)
-        select m);
 
     public static PropertyProvider Create(Type type, Expression? expression)
     {
         var properties = new Dictionary<string, Type>();
         if (type == _dictionaryType)
         {
-            if (expression is MethodCallExpression methodCallExpression
-                && methodCallExpression.Method.IsConstructedGenericMethod
-                && methodCallExpression.Method.GetGenericMethodDefinition() == _queryableSelectMethod)
+            if (expression.IsSelect(out var selector))
             {
-                var quotedSelector = (UnaryExpression)methodCallExpression.Arguments[1];
-                Debug.Assert(quotedSelector.NodeType == ExpressionType.Quote);
-                var selector = (LambdaExpression)quotedSelector.Operand;
                 var listInit = (ListInitExpression)selector.Body;
 
                 foreach (ElementInit initializer in listInit.Initializers)

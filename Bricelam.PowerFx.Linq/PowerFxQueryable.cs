@@ -61,6 +61,7 @@ public static class PowerFxQueryable
     /// <param name="columns">The name-formula pairs of columns to add.</param>
     /// <returns>A queryable whose elements are the result of adding the coluns to each elelemt of <paramref name="source"/>.</returns>
     // TODO: A version that returns dynamic (via ExpandoObject)?
+    // TODO: Rewrite any existing Select
     public static IQueryable<Dictionary<string, object?>> AddColumns<TSource>(
         this IQueryable<TSource> source,
         PowerFxLinqConfig? config,
@@ -113,6 +114,38 @@ public static class PowerFxQueryable
     {
         ArgumentNullException.ThrowIfNull(columnNames);
 
+        // TODO: Handle more initializers
+        if (typeof(TSource) == typeof(Dictionary<string, object?>)
+            && source.Expression.IsSelect(out var newSource, out var oldSelector))
+        {
+            var oldListInit = (ListInitExpression)oldSelector.Body;
+
+            var newInitializers = new List<ElementInit>();
+            var shownColumns = new HashSet<string>();
+            foreach (var oldInitializer in oldListInit.Initializers)
+            {
+                var columnName = (string)((ConstantExpression)oldInitializer.Arguments[0]).Value!;
+                if (columnNames.Contains(columnName))
+                {
+                    newInitializers.Add(oldInitializer);
+                    shownColumns.Add(columnName);
+                }
+            }
+
+            if (shownColumns.Count != columnNames.Length)
+            {
+                throw new PowerFxLinqException(
+                    "Columns not found: " + string.Join(", ", columnNames.Except(shownColumns)));
+            }
+
+            var newSelector = Expression.Lambda(
+                Expression.ListInit(oldListInit.NewExpression, newInitializers),
+                oldSelector.Parameters);
+
+            return source.Provider.CreateQuery<Dictionary<string, object?>>(
+                newSource.Select(newSelector));
+        }
+
         var e = Expression.Parameter(typeof(TSource), "e");
 
         var propertyProvider = PropertyProvider.Create(typeof(TSource), source.Expression);
@@ -149,6 +182,44 @@ public static class PowerFxQueryable
         params string[] columnNames)
     {
         ArgumentNullException.ThrowIfNull(columnNames);
+
+        // TODO: Handle more initializers
+        if (typeof(TSource) == typeof(Dictionary<string, object?>)
+            && source.Expression.IsSelect(out var newSource, out var oldSelector))
+        {
+            var oldListInit = (ListInitExpression)oldSelector.Body;
+
+            var newInitializers = new List<ElementInit>();
+            var droppedColumns = new HashSet<string>();
+            foreach (var oldInitializer in oldListInit.Initializers)
+            {
+                var columnName = (string)((ConstantExpression)oldInitializer.Arguments[0]).Value!;
+                if (!columnNames.Contains(columnName))
+                {
+                    newInitializers.Add(oldInitializer);
+                }
+                else
+                {
+                    droppedColumns.Add(columnName);
+                }
+            }
+
+            if (droppedColumns.Count != columnNames.Length)
+            {
+                throw new PowerFxLinqException(
+                    "Columns not found: " + string.Join(", ", columnNames.Except(droppedColumns)));
+            }
+
+            var newSelector = Expression.Lambda(
+                Expression.ListInit(
+                    oldListInit.NewExpression,
+                    oldListInit.Initializers
+                        .Where(i => !columnNames.Contains((string)((ConstantExpression)i.Arguments[0]).Value!))),
+                oldSelector.Parameters);
+
+            return source.Provider.CreateQuery<Dictionary<string, object?>>(
+                newSource.Select(newSelector));
+        }
 
         var e = Expression.Parameter(typeof(TSource), "e");
 

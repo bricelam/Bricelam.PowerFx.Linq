@@ -39,6 +39,19 @@ static class ExpressionExtensions
         { 15, 14, 13, 12, 10, 9, 0 }  // decimal
     };
 
+    static readonly MethodInfo _queryableSelectMethod = Enumerable.First(
+        from m in typeof(Queryable).GetMethods()
+        where m.Name == nameof(Queryable.Select)
+        let parameters = m.GetParameters()
+        where parameters.Length == 2
+            && parameters[0].ParameterType.IsConstructedGenericType
+            && parameters[0].ParameterType.GetGenericTypeDefinition() == typeof(IQueryable<>)
+            && parameters[1].ParameterType.IsConstructedGenericType
+            && parameters[1].ParameterType.GetGenericTypeDefinition() == typeof(Expression<>)
+            && parameters[1].ParameterType.GenericTypeArguments[0].IsConstructedGenericType
+            && parameters[1].ParameterType.GenericTypeArguments[0].GetGenericTypeDefinition() == typeof(Func<,>)
+        select m);
+
     public static Expression CallBestOverload(IEnumerable<MethodInfo> overloads, IEnumerable<Expression> arguments)
         => CallBestOverload(instance: null, overloads, arguments);
 
@@ -222,6 +235,42 @@ static class ExpressionExtensions
         (left, right) = Lift(left, right);
 
         return Expression.GreaterThanOrEqual(left, right);
+    }
+
+    public static bool IsSelect(this Expression? source, [NotNullWhen(true)] out LambdaExpression? selector)
+        => IsSelect(source, out _, out selector);
+
+    public static bool IsSelect(this Expression? source, [NotNullWhen(true)] out Expression? selectSource, [NotNullWhen(true)] out LambdaExpression? selector)
+    {
+        if (source is MethodCallExpression methodCallExpression
+            && methodCallExpression.Method.IsConstructedGenericMethod
+            && methodCallExpression.Method.GetGenericMethodDefinition() == _queryableSelectMethod)
+        {
+            selectSource = methodCallExpression.Arguments[0];
+
+            var quotedSelector = (UnaryExpression)methodCallExpression.Arguments[1];
+            Debug.Assert(quotedSelector.NodeType == ExpressionType.Quote);
+            selector = (LambdaExpression)quotedSelector.Operand;
+
+            return true;
+        }
+
+        selectSource = null;
+        selector = null;
+
+        return false;
+    }
+
+    public static Expression Select(this Expression source, LambdaExpression selector)
+    {
+        Debug.Assert(
+            source.Type.IsConstructedGenericType
+            && source.Type.GetGenericTypeDefinition() == typeof(IQueryable<>));
+
+        return Expression.Call(
+            _queryableSelectMethod.MakeGenericMethod(source.Type.GenericTypeArguments[0], selector.ReturnType),
+            source,
+            Expression.Quote(selector));
     }
 
     // TODO: Can we share logic with CallBestOverload?
