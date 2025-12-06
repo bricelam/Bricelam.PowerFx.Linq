@@ -7,3 +7,6 @@ updates:
     groups:
       nuget-dependencies:
         patterns: ["*"]
+    ignore:
+      - dependency-name: Microsoft.EntityFrameworkCore.Sqlite
+        update-types: [version-update:semver-major]
