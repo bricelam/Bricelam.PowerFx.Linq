@@ -293,6 +293,22 @@ public class PowerFxTranslatorTests : TranslatorTestBase
         => FuncTest("EDate(Value, 1)", new { Value = new DateTime(2025, 9, 16) }, new DateTime(2025, 10, 16));
 
     [Fact]
+    public void Call_If()
+        => FuncTest("If(false, 0, 1)", 1.0);
+
+    [Fact]
+    public void Call_If_no_else()
+        => FuncTest("If(false, 0)", default(double?));
+
+    [Fact]
+    public void Call_If_multiple_conditions()
+        => FuncTest("If(false, 0, false, 1, 2)", 2.0);
+
+    [Fact]
+    public void Call_If_multiple_conditions_no_else()
+        => FuncTest("If(false, 0, false, 1)", default(double?));
+
+    [Fact]
     public void Call_UniChar()
         => FuncTest("UniChar(65)", "A");
 

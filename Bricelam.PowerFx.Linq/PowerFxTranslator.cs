@@ -256,8 +256,21 @@ class PowerFxTranslator : TexlFunctionalVisitor<Expression, PowerFxTranslatorCon
                     ]);
 
             case "If":
-                // TODO: Handle additional conditions
-                return Expression.Condition(arguments[0], arguments[1], arguments[2]);
+                var stack = new Stack<Expression>(arguments);
+                var expression = stack.Count % 2 == 1
+                    ? stack.Pop()
+                    : Expression.Constant(null);
+                while (stack.Count > 0)
+                {
+                    // NB: We're traversing the arguments backwards
+                    var elseResult = expression;
+                    var thenResult = stack.Pop();
+                    var condition = stack.Pop();
+
+                    expression = ExpressionExtensions.LiftAndCondition(condition, thenResult, elseResult);
+                }
+
+                return expression;
 
             case "IsBlank":
                 return arguments[0].Type == typeof(string)

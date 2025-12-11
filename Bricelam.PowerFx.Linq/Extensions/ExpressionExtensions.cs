@@ -237,6 +237,13 @@ static class ExpressionExtensions
         return Expression.GreaterThanOrEqual(left, right);
     }
 
+    public static ConditionalExpression LiftAndCondition(Expression test, Expression ifTrue, Expression ifFalse)
+    {
+        (ifTrue, ifFalse) = Lift(ifTrue, ifFalse);
+
+        return Expression.Condition(test, ifTrue, ifFalse);
+    }
+
     public static bool IsSelect(this Expression? source, [NotNullWhen(true)] out LambdaExpression? selector)
         => IsSelect(source, out _, out selector);
 
