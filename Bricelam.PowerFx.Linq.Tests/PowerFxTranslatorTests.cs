@@ -315,4 +315,8 @@ public class PowerFxTranslatorTests : TranslatorTestBase
     [Fact]
     public void Call_UTCToday()
         => FuncTest(UTCConfig, "UTCToday()", DateTime.UtcNow.Date);
+
+    [Fact]
+    public void Call_With()
+        => FuncTest("With({Value:1}, Value)", 1.0);
 }

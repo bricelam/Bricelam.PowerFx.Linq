@@ -6,7 +6,7 @@ using Microsoft.PowerFx.Types;
 
 namespace Bricelam.PowerFx.Linq;
 
-class PowerFxTranslatorContext
+class PowerFxTranslatorContext : IPowerFxTranslatorContext
 {
     readonly ParameterExpression? _thisRecord;
     readonly PropertyProvider? _thisRecordPropertyProvider;

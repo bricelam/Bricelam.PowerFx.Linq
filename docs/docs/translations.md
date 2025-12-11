@@ -100,6 +100,7 @@ UTCNow()                      | DateTime.UtcNow
 UTCToday()                    | DateTime.UtcNow.Date
 Value(x)                      | double.Parse(x)
 Weekday(dateTime)             | dateTime.DayOfWeek
+With(x, y)                    | y
 Year(dateTime)                | dateTime.Year
 
 ## String interpolation

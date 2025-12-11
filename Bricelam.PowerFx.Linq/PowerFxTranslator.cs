@@ -7,7 +7,7 @@ using Microsoft.PowerFx.Syntax;
 namespace Bricelam.PowerFx.Linq;
 
 // TODO: Singleton?
-class PowerFxTranslator : TexlFunctionalVisitor<Expression, PowerFxTranslatorContext>
+class PowerFxTranslator : TexlFunctionalVisitor<Expression, IPowerFxTranslatorContext>
 {
     readonly List<IFunctionCallTranslator> _translators = [
         new SimpleBinaryOperatorsTranslator(),
@@ -19,28 +19,28 @@ class PowerFxTranslator : TexlFunctionalVisitor<Expression, PowerFxTranslatorCon
         new SimpleUnaryOperatorsTranslator()
     ];
 
-    public override Expression Visit(TypeLiteralNode node, PowerFxTranslatorContext context)
+    public override Expression Visit(TypeLiteralNode node, IPowerFxTranslatorContext context)
         => throw new NotImplementedException();
 
-    public override Expression Visit(ErrorNode node, PowerFxTranslatorContext context)
+    public override Expression Visit(ErrorNode node, IPowerFxTranslatorContext context)
         => throw new PowerFxLinqException(node.Message);
 
-    public override Expression Visit(BlankNode node, PowerFxTranslatorContext context)
+    public override Expression Visit(BlankNode node, IPowerFxTranslatorContext context)
         => throw new PowerFxLinqException("The formula is blank.");
 
-    public override Expression Visit(BoolLitNode node, PowerFxTranslatorContext context)
+    public override Expression Visit(BoolLitNode node, IPowerFxTranslatorContext context)
         => Expression.Constant(node.Value);
 
-    public override Expression Visit(StrLitNode node, PowerFxTranslatorContext context)
+    public override Expression Visit(StrLitNode node, IPowerFxTranslatorContext context)
         => Expression.Constant(node.Value);
 
-    public override Expression Visit(NumLitNode node, PowerFxTranslatorContext context)
+    public override Expression Visit(NumLitNode node, IPowerFxTranslatorContext context)
         => Expression.Constant(node.ActualNumValue);
 
-    public override Expression Visit(DecLitNode node, PowerFxTranslatorContext context)
+    public override Expression Visit(DecLitNode node, IPowerFxTranslatorContext context)
         => Expression.Constant(node.ActualDecValue);
 
-    public override Expression Visit(FirstNameNode node, PowerFxTranslatorContext context)
+    public override Expression Visit(FirstNameNode node, IPowerFxTranslatorContext context)
     {
         var translation = context.Bind(node.Ident.Name);
         if (translation is not null)
@@ -52,13 +52,13 @@ class PowerFxTranslator : TexlFunctionalVisitor<Expression, PowerFxTranslatorCon
         throw new UnreachableException("Unknown identifier: " + node.Ident.Name);
     }
 
-    public override Expression Visit(ParentNode node, PowerFxTranslatorContext context)
+    public override Expression Visit(ParentNode node, IPowerFxTranslatorContext context)
         => throw new NotImplementedException();
 
-    public override Expression Visit(SelfNode node, PowerFxTranslatorContext context)
+    public override Expression Visit(SelfNode node, IPowerFxTranslatorContext context)
         => throw new NotImplementedException();
 
-    public override Expression Visit(StrInterpNode node, PowerFxTranslatorContext context)
+    public override Expression Visit(StrInterpNode node, IPowerFxTranslatorContext context)
         // TODO: DRY (Concatenate function). Handle additonal arguments
         => Expression.Call(
             typeof(string).GetMethod(nameof(string.Concat), [typeof(object[])])!,
@@ -66,11 +66,11 @@ class PowerFxTranslator : TexlFunctionalVisitor<Expression, PowerFxTranslatorCon
                 typeof(object),
                 node.ChildNodes.Select(n => Expression.Convert(n.Accept(this, context), typeof(object)))));
 
-    public override Expression Visit(DottedNameNode node, PowerFxTranslatorContext context)
+    public override Expression Visit(DottedNameNode node, IPowerFxTranslatorContext context)
         // TODO: Handle records
         => Expression.Property(node.Left.Accept(this, context), node.Right.Name);
 
-    public override Expression Visit(UnaryOpNode node, PowerFxTranslatorContext context)
+    public override Expression Visit(UnaryOpNode node, IPowerFxTranslatorContext context)
     {
         var child = node.Child.Accept(this, context);
         Func<Expression, Expression>? expressionFactory = node.Op switch
@@ -94,7 +94,7 @@ class PowerFxTranslator : TexlFunctionalVisitor<Expression, PowerFxTranslatorCon
         throw new UnreachableException("Unexpected UnaryOp: " + node.Op);
     }
 
-    public override Expression Visit(BinaryOpNode node, PowerFxTranslatorContext context)
+    public override Expression Visit(BinaryOpNode node, IPowerFxTranslatorContext context)
     {
         var left = node.Left.Accept(this, context);
         var right = node.Right.Accept(this, context);
@@ -157,12 +157,22 @@ class PowerFxTranslator : TexlFunctionalVisitor<Expression, PowerFxTranslatorCon
         throw new UnreachableException("Unexpected BinaryOp: " + node.Op);
     }
 
-    public override Expression Visit(VariadicOpNode node, PowerFxTranslatorContext context)
+    public override Expression Visit(VariadicOpNode node, IPowerFxTranslatorContext context)
         => throw new NotImplementedException();
 
     // TODO: Break into more translators
-    public override Expression Visit(CallNode node, PowerFxTranslatorContext context)
+    public override Expression Visit(CallNode node, IPowerFxTranslatorContext context)
     {
+        if (node.Head.Name == "With")
+        {
+            var record = (RecordExpression)node.Args.ChildNodes[0].Accept(this, context);
+            var withContext = new PowerFxTranslatorContextForWith(context.NumberIsDecimal, record.Fields);
+            var formulaNode = node.Args.ChildNodes[1];
+
+            // TODO: Can (and should) we translate this closer to let?
+            return formulaNode.Accept(this, withContext);
+        }
+
         var arguments = node.Args.ChildNodes.Select(c => c.Accept(this, context)).ToList();
 
         foreach (var translator in _translators)
@@ -332,10 +342,10 @@ class PowerFxTranslator : TexlFunctionalVisitor<Expression, PowerFxTranslatorCon
         throw new NotImplementedException();
     }
 
-    public override Expression Visit(ListNode node, PowerFxTranslatorContext context)
+    public override Expression Visit(ListNode node, IPowerFxTranslatorContext context)
         => throw new NotImplementedException();
 
-    public override Expression Visit(RecordNode node, PowerFxTranslatorContext context)
+    public override Expression Visit(RecordNode node, IPowerFxTranslatorContext context)
     {
         var fields = new Dictionary<string, Expression>();
         for (var i = 0; i < node.Count; i++)
@@ -346,7 +356,7 @@ class PowerFxTranslator : TexlFunctionalVisitor<Expression, PowerFxTranslatorCon
         return new RecordExpression(fields);
     }
 
-    public override Expression Visit(TableNode node, PowerFxTranslatorContext context)
+    public override Expression Visit(TableNode node, IPowerFxTranslatorContext context)
         => new TableExpression(
             node.ChildNodes.Select(c => c.Accept(this, context))
                 .Select(
@@ -355,6 +365,6 @@ class PowerFxTranslator : TexlFunctionalVisitor<Expression, PowerFxTranslatorCon
                         : RecordExpression.FromValue(c))
                 .ToArray());
 
-    public override Expression Visit(AsNode node, PowerFxTranslatorContext context)
+    public override Expression Visit(AsNode node, IPowerFxTranslatorContext context)
         => throw new NotImplementedException();
 }
