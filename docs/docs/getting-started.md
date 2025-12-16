@@ -31,7 +31,7 @@ The <xref:Bricelam.PowerFx.Linq.PowerFxQueryable> class provides queryable exten
 var query = circles
     .AddColumns(
         ("Diameter", "2 * Radius"),
-        ("Circumfrence", "2 * Pi() * Radius")
+        ("Circumference", "2 * Pi() * Radius")
         ("Area", "Pi() * Radius^2"));
 ```
 
