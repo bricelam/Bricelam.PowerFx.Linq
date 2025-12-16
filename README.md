@@ -33,7 +33,7 @@ The `PowerFxQueryable` class provides queryable extension methods that use formu
 var query = circles
     .AddColumns(
         ("Diameter", "2 * Radius"),
-        ("Circumfrence", "2 * Pi() * Radius")
+        ("Circumference", "2 * Pi() * Radius")
         ("Area", "Pi() * Radius^2"));
 ```
 
