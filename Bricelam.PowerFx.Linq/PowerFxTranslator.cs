@@ -267,18 +267,47 @@ class PowerFxTranslator : TexlFunctionalVisitor<Expression, IPowerFxTranslatorCo
 
             case "If":
                 var stack = new Stack<Expression>(arguments);
-                var expression = stack.Count % 2 == 1
-                    ? stack.Pop()
-                    : Expression.Constant(null);
+                Expression expression;
+                var blankType = typeof(object);
+                if (stack.Count % 2 == 1)
+                {
+                    expression = stack.Pop();
+                    blankType = expression.Type.AsNullable();
+                }
+                else
+                {
+                    expression = Expression.Constant(null);
+                }
+
+                if (blankType == typeof(object))
+                {
+                    for (var i = 1; i < arguments.Count; i += 2)
+                    {
+                        if (arguments[i].Type != typeof(object))
+                        {
+                            blankType = arguments[i].Type.AsNullable();
+
+                            break;
+                        }
+                    }
+
+                    Debug.Assert(blankType != typeof(object));
+                }
+
                 while (stack.Count > 0)
                 {
                     // NB: We're traversing the arguments backwards
-                    var elseResult = expression;
-                    var thenResult = stack.Pop();
+                    var elseResult = AddBlankType(expression);
+                    var thenResult = AddBlankType(stack.Pop());
                     var condition = stack.Pop();
 
                     expression = ExpressionExtensions.LiftAndCondition(condition, thenResult, elseResult);
                 }
+
+                Expression AddBlankType(Expression expression)
+                    => expression.Type == typeof(object)
+                        ? ExpressionExtensions.ConvertIfNeeded(expression, blankType)
+                        : expression;
 
                 return expression;
 
