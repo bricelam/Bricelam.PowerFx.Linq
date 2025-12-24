@@ -86,15 +86,15 @@ static class ExpressionExtensions
             for (var i = 0; i < argumentsList.Count; i++)
             {
                 var argumentType = argumentsList[i].Type;
-                var fromNullable = argumentType.IsNullable();
-                if (fromNullable)
+                var fromNullableStruct = argumentType.IsNullableStruct();
+                if (fromNullableStruct)
                 {
                     argumentType = argumentType.GenericTypeArguments[0];
                 }
 
                 var parameterType = overload.Key[i];
-                var toNullable = parameterType.IsNullable();
-                if (toNullable)
+                var toNullableStruct = parameterType.IsNullableStruct();
+                if (toNullableStruct)
                 {
                     parameterType = parameterType.GenericTypeArguments[0];
                 }
@@ -136,12 +136,12 @@ static class ExpressionExtensions
             var value = constantExpression.Value;
             if (value is not null)
             {
-                var nullable = type.IsNullable();
-                var conversionType = nullable
+                var nullableStruct = type.IsNullableStruct();
+                var conversionType = nullableStruct
                     ? type.GenericTypeArguments[0]
                     : type;
                 value = Convert.ChangeType(value, conversionType, CultureInfo.InvariantCulture);
-                if (nullable)
+                if (nullableStruct)
                 {
                     value = type.GetConstructor([conversionType])!.Invoke([value]);
                 }
@@ -289,12 +289,12 @@ static class ExpressionExtensions
             return (left, right);
 
         var nullable = false;
-        if (leftType.IsNullable())
+        if (leftType.IsNullableStruct())
         {
             nullable = true;
             leftType = leftType.GenericTypeArguments[0];
         }
-        if (rightType.IsNullable())
+        if (rightType.IsNullableStruct())
         {
             nullable = true;
             rightType = rightType.GenericTypeArguments[0];
