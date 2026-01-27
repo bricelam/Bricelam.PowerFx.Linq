@@ -318,7 +318,9 @@ class PowerFxTranslator : TexlFunctionalVisitor<Expression, IPowerFxTranslatorCo
                         [
                             arguments[0]
                         ])
-                    : Expression.Equal(arguments[0], Expression.Constant(null, arguments[0].Type));
+                    : ExpressionExtensions.LiftAndEqual(
+                        arguments[0],
+                        Expression.Constant(null, arguments[0].Type.AsNullable()));
 
             case "Left":
                 return Expression.Call(

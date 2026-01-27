@@ -309,6 +309,10 @@ public class PowerFxTranslatorTests : TranslatorTestBase
         => FuncTest("If(false, 0, false, 1)", default(double?));
 
     [Fact]
+    public void Call_IsBlank_with_nonnullable()
+        => FuncTest("IsBlank(1)", false);
+
+    [Fact]
     public void Call_UniChar()
         => FuncTest("UniChar(65)", "A");
 
