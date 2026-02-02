@@ -166,7 +166,7 @@ class PowerFxTranslator : TexlFunctionalVisitor<Expression, IPowerFxTranslatorCo
         if (node.Head.Name == "With")
         {
             var record = (RecordExpression)node.Args.ChildNodes[0].Accept(this, context);
-            var withContext = new PowerFxTranslatorContextForWith(context.NumberIsDecimal, record.Fields);
+            var withContext = new PowerFxTranslatorContextForWith(context, record.Fields);
             var formulaNode = node.Args.ChildNodes[1];
 
             // TODO: Can (and should) we translate this closer to let?

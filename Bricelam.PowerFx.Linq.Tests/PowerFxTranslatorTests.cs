@@ -323,4 +323,9 @@ public class PowerFxTranslatorTests : TranslatorTestBase
     [Fact]
     public void Call_With()
         => FuncTest("With({Value:1}, Value)", 1.0);
+
+    [Fact]
+    public void Call_With_when_nested()
+        => FuncTest("With({B:3}, With({C:5}, A * B * C))", new { A = 2.0 }, 30.0);
+
 }

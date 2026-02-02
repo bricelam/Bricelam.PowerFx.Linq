@@ -4,17 +4,19 @@ namespace Bricelam.PowerFx.Linq;
 
 class PowerFxTranslatorContextForWith : IPowerFxTranslatorContext
 {
+    readonly IPowerFxTranslatorContext _outerContext;
     readonly Dictionary<string, Expression> _namedExpressions;
 
     public PowerFxTranslatorContextForWith(
-        bool numberIsDecimal,
+        IPowerFxTranslatorContext outerContext,
         IReadOnlyDictionary<string, Expression> namedExpressions)
     {
-        NumberIsDecimal = numberIsDecimal;
+        _outerContext = outerContext;
         _namedExpressions = new Dictionary<string, Expression>(namedExpressions);
     }
 
-    public bool NumberIsDecimal { get; }
+    public bool NumberIsDecimal
+        => _outerContext.NumberIsDecimal;
 
     public Expression? Bind(string identifier)
     {
@@ -23,6 +25,6 @@ class PowerFxTranslatorContextForWith : IPowerFxTranslatorContext
             return expression;
         }
 
-        return null;
+        return _outerContext.Bind(identifier);
     }
 }
