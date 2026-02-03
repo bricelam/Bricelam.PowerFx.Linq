@@ -356,13 +356,26 @@ class PowerFxTranslator : TexlFunctionalVisitor<Expression, IPowerFxTranslatorCo
 
             // TODO: Handle LanguageTag parameter
             case "Value":
-                return Expression.Call(
-                    context.NumberIsDecimal
-                        ? typeof(decimal).GetMethod(nameof(decimal.Parse), [typeof(string)])!
-                        : typeof(double).GetMethod(nameof(double.Parse), [typeof(string)])!,
-                    [
-                        arguments[0]
-                    ]);
+                if (arguments[0].Type == typeof(string))
+                {
+                    return Expression.Call(
+                        context.NumberIsDecimal
+                            ? typeof(decimal).GetMethod(nameof(decimal.Parse), [typeof(string)])!
+                            : typeof(double).GetMethod(nameof(double.Parse), [typeof(string)])!,
+                        [
+                            arguments[0]
+                        ]);
+                }
+
+                var resultType = context.NumberIsDecimal
+                    ? typeof(decimal)
+                    : typeof(double);
+                if (arguments[0].Type.IsNullable())
+                {
+                    resultType = resultType.AsNullable();
+                }
+
+                return ExpressionExtensions.ConvertIfNeeded(arguments[0], resultType);
 
             case "UTCToday":
                 return Expression.Property(

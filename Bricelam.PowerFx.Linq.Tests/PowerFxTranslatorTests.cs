@@ -321,6 +321,30 @@ public class PowerFxTranslatorTests : TranslatorTestBase
         => FuncTest(UTCConfig, "UTCToday()", DateTime.UtcNow.Date);
 
     [Fact]
+    public void Call_Value_text()
+        => FuncTest("Value(\"1\")", 1.0);
+
+    [Fact]
+    public void Call_Value_text_when_decimal()
+        => FuncTest(DecimalConfig, "Value(\"1\")", 1m);
+
+    [Fact]
+    public void Call_Value_blank()
+        => FuncTest("Value(Blank())", default(double?));
+
+    [Fact]
+    public void Call_Value_blank_when_decimal()
+        => FuncTest(DecimalConfig, "Value(Blank())", default(decimal?));
+
+    [Fact]
+    public void Call_Value_number()
+        => FuncTest("Value(1)", 1.0);
+
+    [Fact]
+    public void Call_Value_number_when_decimal()
+        => FuncTest(DecimalConfig, "Value(1)", 1m);
+
+    [Fact]
     public void Call_With()
         => FuncTest("With({Value:1}, Value)", 1.0);
 
