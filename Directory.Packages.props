@@ -3,15 +3,15 @@
         <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     </PropertyGroup>
     <ItemGroup>
-        <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.23" />
-        <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
-        <PackageVersion Include="Microsoft.PowerFx.Core" Version="1.4.0" />
+        <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.24" />
+        <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.3.0" />
+        <PackageVersion Include="Microsoft.PowerFx.Core" Version="1.8.1" />
         <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5" />
         <PackageVersion Include="xunit.v3" Version="3.2.2" />
         <PackageVersion Include="YamlDotNet" Version="16.3.0" />
     </ItemGroup>
     <ItemGroup>
-        <GlobalPackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.102" />
+        <GlobalPackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.103" />
         <GlobalPackageReference Include="Nerdbank.GitVersioning" Version="3.9.50" />
     </ItemGroup>
 </Project>
