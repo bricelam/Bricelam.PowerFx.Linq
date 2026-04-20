@@ -3,7 +3,7 @@
         <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     </PropertyGroup>
     <ItemGroup>
-        <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.26" />
+        <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.6" />
         <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.4.0" />
         <PackageVersion Include="Microsoft.PowerFx.Core" Version="1.8.1" />
         <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5" />
