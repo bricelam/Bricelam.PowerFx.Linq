@@ -12,7 +12,6 @@
         <PackageVersion Include="YamlDotNet" Version="18.1.0" />
     </ItemGroup>
     <ItemGroup>
-        <GlobalPackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.300" />
         <GlobalPackageReference Include="Nerdbank.GitVersioning" Version="3.10.91" />
     </ItemGroup>
 </Project>
