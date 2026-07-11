@@ -45,6 +45,31 @@ public class PowerFxQueryableTests
     }
 
     [Fact]
+    public void AddColumns_works_after_projection()
+    {
+        var source = Queryable.AsQueryable(
+            [
+                new { Value = 1.0 }
+            ]);
+
+        var result = source
+            .Select(
+                x => new Dictionary<string, object?>
+                {
+                    { "Value", x.Value },
+                    { "Next", x.Value + 1 }
+                })
+            .AddColumns(("Previous", "Value - 1"))
+            .ToList();
+
+        var i = Assert.Single(result);
+        Assert.Equal(3, i.Count);
+        Assert.Equal(1.0, i["Value"]);
+        Assert.Equal(2.0, i["Next"]);
+        Assert.Equal(0.0, i["Previous"]);
+    }
+
+    [Fact]
     public void AddColumns_works_when_dictionary()
     {
         var source = Queryable.AsQueryable(
