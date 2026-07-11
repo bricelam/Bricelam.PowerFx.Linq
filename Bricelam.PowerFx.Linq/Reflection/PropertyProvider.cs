@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -13,19 +12,11 @@ abstract class PropertyProvider
         var properties = new Dictionary<string, Type>();
         if (type == _dictionaryType)
         {
-            if (expression.IsSelect(out var selector))
+            if (expression.TryGetPropertyBagProjection(out var projection))
             {
-                var listInit = (ListInitExpression)selector.Body;
-
-                foreach (ElementInit initializer in listInit.Initializers)
+                foreach (var property in projection.Properties)
                 {
-                    var keyExpression = (ConstantExpression)initializer.Arguments[0];
-
-                    var valueExpression = (UnaryExpression)initializer.Arguments[1];
-                    Debug.Assert(valueExpression.NodeType == ExpressionType.Convert);
-                    Debug.Assert(valueExpression.Type == typeof(object));
-
-                    properties.Add((string)keyExpression.Value!, valueExpression.Operand.Type);
+                    properties.Add(property.Key, property.Value.Type);
                 }
             }
             else if (expression is ConstantExpression constantExpression

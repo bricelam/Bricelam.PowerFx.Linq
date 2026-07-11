@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Reflection;
 using Bricelam.PowerFx.Linq;
+using Bricelam.PowerFx.Linq.Expressions;
 
 namespace System.Linq.Expressions;
 
@@ -244,41 +245,59 @@ static class ExpressionExtensions
         return Expression.Condition(test, ifTrue, ifFalse);
     }
 
-    public static bool IsSelect(this Expression? source, [NotNullWhen(true)] out LambdaExpression? selector)
-        => IsSelect(source, out _, out selector);
-
-    public static bool IsSelect(this Expression? source, [NotNullWhen(true)] out Expression? selectSource, [NotNullWhen(true)] out LambdaExpression? selector)
+    public static bool TryGetPropertyBagProjection(this Expression? source, [NotNullWhen(true)] out IPropertyBagProjection? projection)
     {
-        if (source is MethodCallExpression methodCallExpression
+        if (source is PropertyBagProjectionExpression propertyBagProjection)
+        {
+            projection = propertyBagProjection;
+
+            return true;
+        }
+        if (source?.Type == typeof(IQueryable<Dictionary<string, object?>>)
+            && source is MethodCallExpression methodCallExpression
             && methodCallExpression.Method.IsConstructedGenericMethod
             && methodCallExpression.Method.GetGenericMethodDefinition() == _queryableSelectMethod)
         {
-            selectSource = methodCallExpression.Arguments[0];
+            var selectSource = methodCallExpression.Arguments[0];
 
             var quotedSelector = (UnaryExpression)methodCallExpression.Arguments[1];
             Debug.Assert(quotedSelector.NodeType == ExpressionType.Quote);
-            selector = (LambdaExpression)quotedSelector.Operand;
+            var selector = (LambdaExpression)quotedSelector.Operand;
+
+            var listInit = (ListInitExpression)selector.Body;
+
+            var selectedProperties = new Dictionary<string, Expression>();
+            foreach (ElementInit initializer in listInit.Initializers)
+            {
+                var keyExpression = (ConstantExpression)initializer.Arguments[0];
+
+                var valueExpression = (UnaryExpression)initializer.Arguments[1];
+                Debug.Assert(valueExpression.NodeType == ExpressionType.Convert);
+                Debug.Assert(valueExpression.Type == typeof(object));
+
+                selectedProperties.Add((string)keyExpression.Value!, valueExpression.Operand);
+            }
+
+            projection = new PropertyBagProjectionInfo
+            {
+                Source = selectSource,
+                Properties = selectedProperties,
+                RangeVariable = selector.Parameters[0]
+            };
 
             return true;
         }
 
-        selectSource = null;
-        selector = null;
+        projection = null;
 
         return false;
     }
 
     public static Expression Select(this Expression source, LambdaExpression selector)
-    {
-        Debug.Assert(
-            source.Type.IsConstructedGenericType
-            && source.Type.GetGenericTypeDefinition() == typeof(IQueryable<>));
-
-        return Expression.Call(
+        => Expression.Call(
             _queryableSelectMethod.MakeGenericMethod(source.Type.GenericTypeArguments[0], selector.ReturnType),
             source,
             Expression.Quote(selector));
-    }
 
     // TODO: Can we share logic with CallBestOverload?
     static (Expression Left, Expression Right) Lift(Expression left, Expression right)
