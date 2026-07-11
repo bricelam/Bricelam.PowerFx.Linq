@@ -6,7 +6,6 @@ using Microsoft.PowerFx.Syntax;
 
 namespace Bricelam.PowerFx.Linq;
 
-// TODO: Singleton?
 class PowerFxTranslator : TexlFunctionalVisitor<Expression, IPowerFxTranslatorContext>
 {
     readonly List<IFunctionCallTranslator> _translators = [
@@ -18,6 +17,13 @@ class PowerFxTranslator : TexlFunctionalVisitor<Expression, IPowerFxTranslatorCo
         new SimpleStaticPropertiesTranslator(),
         new SimpleUnaryOperatorsTranslator()
     ];
+
+    private PowerFxTranslator()
+    {
+    }
+
+    public static Expression Run(TexlNode node, IPowerFxTranslatorContext context)
+        => node.Accept(new PowerFxTranslator(), context);
 
     public override Expression Visit(TypeLiteralNode node, IPowerFxTranslatorContext context)
         => throw new NotImplementedException();

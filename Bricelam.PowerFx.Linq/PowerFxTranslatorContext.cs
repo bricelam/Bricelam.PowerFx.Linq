@@ -67,7 +67,7 @@ class PowerFxTranslatorContext : IPowerFxTranslatorContext
         var checkResult = _engine.Check(formula, _parserOptions);
         checkResult.ThrowOnErrors();
 
-        return checkResult.Parse.Root.Accept(new PowerFxTranslator(), this);
+        return PowerFxTranslator.Run(checkResult.Parse.Root, this);
     }
 
     public Expression? Bind(string identifier)
