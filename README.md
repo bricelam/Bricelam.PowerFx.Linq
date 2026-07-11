@@ -1,6 +1,6 @@
 # Bricelam.PowerFx.Linq
 
-[![build status](https://github.com/bricelam/Bricelam.PowerFx.Linq/actions/workflows/dotnet.yml/badge.svg)](https://github.com/bricelam/Bricelam.PowerFx.Linq/actions/workflows/dotnet.yml) [![latest version](https://img.shields.io/myget/bricelam/v/Bricelam.PowerFx.Linq)](https://www.myget.org/feed/bricelam/package/nuget/Bricelam.PowerFx.Linq) [![downloads](https://img.shields.io/myget/bricelam/dt/Bricelam.PowerFx.Linq)](https://www.myget.org/feed/bricelam/package/nuget/Bricelam.PowerFx.Linq) [![license](https://img.shields.io/github/license/bricelam/Bricelam.PowerFx.Linq)](https://github.com/bricelam/Bricelam.PowerFx.Linq/blob/main/LICENSE.md)
+[![build status](https://github.com/bricelam/Bricelam.PowerFx.Linq/actions/workflows/dotnet.yml/badge.svg)](https://github.com/bricelam/Bricelam.PowerFx.Linq/actions/workflows/dotnet.yml) [![preview version](https://img.shields.io/myget/bricelam/vpre/Bricelam.PowerFx.Linq?label=myget)](https://www.myget.org/feed/bricelam/package/nuget/Bricelam.PowerFx.Linq) [![downloads](https://img.shields.io/myget/bricelam/dt/Bricelam.PowerFx.Linq)](https://www.myget.org/feed/bricelam/package/nuget/Bricelam.PowerFx.Linq) [![license](https://img.shields.io/github/license/bricelam/Bricelam.PowerFx.Linq)](https://github.com/bricelam/Bricelam.PowerFx.Linq/blob/main/LICENSE.md)
 
 Use Power Fx inside of LINQ.
 
