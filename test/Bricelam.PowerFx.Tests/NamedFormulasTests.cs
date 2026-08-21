@@ -1,6 +1,6 @@
-using Bricelam.PowerFx.Linq.Test;
+using Bricelam.PowerFx.Test;
 
-namespace Bricelam.PowerFx.Linq;
+namespace Bricelam.PowerFx;
 
 public class NamedFormulasTests
 {
@@ -29,7 +29,7 @@ public class NamedFormulasTests
             Formula: 0
             """);
 
-        Assert.Throws<PowerFxLinqException>(
+        Assert.Throws<NamedFormulaSyntaxException>(
             () => NamedFormulas.Load(file));
     }
 }

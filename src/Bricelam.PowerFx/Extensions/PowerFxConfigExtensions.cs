@@ -8,7 +8,7 @@ namespace Microsoft.PowerFx;
 /// <summary>
 /// Provides <see cref="PowerFxConfig"/> extension methods.
 /// </summary>
-public static class PowerFxConfigLinqExtensions
+public static class PowerFxConfigExtensions
 {
     static readonly Type _builtinFunctionsCoreType = Type.GetType(
         "Microsoft.PowerFx.Core.Texl.BuiltinFunctionsCore, Microsoft.PowerFx.Core",

@@ -1,6 +1,6 @@
 using YamlDotNet.Serialization;
 
-namespace Bricelam.PowerFx.Linq;
+namespace Bricelam.PowerFx;
 
 /// <summary>
 /// Provides methods for loading named formulas from YAML.
@@ -76,7 +76,7 @@ public static class NamedFormulas
                 if (path is not null)
                     message += $" File: {path}";
 
-                throw new PowerFxLinqException(message);
+                throw new NamedFormulaSyntaxException(message);
             }
 
             result.Add(key, value[1..]);

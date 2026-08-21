@@ -6,10 +6,7 @@
                 {
                     "src": "..",
                     "files": [
-                        "**/*.csproj"
-                    ],
-                    "exclude": [
-                        "**/*Tests/*"
+                        "src/**/*.csproj"
                     ]
                 }
             ],

@@ -1,17 +1,12 @@
 <Project>
   <PropertyGroup>
-    <AnalysisMode>Recommended</AnalysisMode>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <UseArtifactsOutput>true</UseArtifactsOutput>
-    <DebugType>embedded</DebugType>
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <ArtifactsPath>$(MSBuildThisFileDirectory)artifacts</ArtifactsPath>
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)key.snk</AssemblyOriginatorKeyFile>
     <Authors>Brice Lambson</Authors>
-    <Copyright>© 2025 Brice Lambson. All rights reserved.</Copyright>
-    <PackageLicenseExpression>MS-PL</PackageLicenseExpression>
-    <PackageProjectUrl>https://bricelam.net/Bricelam.PowerFx.Linq</PackageProjectUrl>
-    <PackageTags>linq;powerfx</PackageTags>
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <Copyright>© 2025-$([System.DateTime]::Today.Year) Brice Lambson. All rights reserved.</Copyright>
+    <Product>Bricelam.PowerFx.Linq</Product>
   </PropertyGroup>
 </Project>
