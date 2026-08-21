@@ -9,7 +9,7 @@ class SimpleUnaryOperatorsTranslator : IFunctionCallTranslator
         { "Not", Expression.Not }
     };
 
-    public Expression? Translate(string functionName, IReadOnlyList<Expression> arguments)
+    public Expression? Translate(string functionName, IReadOnlyList<Expression> arguments, IPowerFxTranslatorContext context)
     {
         if (_map.TryGetValue(functionName, out var unaryExpressionFactory))
         {

@@ -154,37 +154,37 @@ static class ExpressionExtensions
         return Expression.Convert(expression, type);
     }
 
-    public static BinaryExpression LiftAndAdd(Expression left, Expression right)
+    public static BinaryExpression LiftAndAdd(Expression left, Expression right, Type? defaultNullType = null)
     {
-        (left, right) = Lift(left, right);
+        (left, right) = Lift(left, right, defaultNullType);
 
         return Expression.Add(left, right);
     }
 
-    public static BinaryExpression LiftAndSubtract(Expression left, Expression right)
+    public static BinaryExpression LiftAndSubtract(Expression left, Expression right, Type? defaultNullType = null)
     {
-        (left, right) = Lift(left, right);
+        (left, right) = Lift(left, right, defaultNullType);
 
         return Expression.Subtract(left, right);
     }
 
-    public static BinaryExpression LiftAndMultiply(Expression left, Expression right)
+    public static BinaryExpression LiftAndMultiply(Expression left, Expression right, Type? defaultNullType = null)
     {
-        (left, right) = Lift(left, right);
+        (left, right) = Lift(left, right, defaultNullType);
 
         return Expression.Multiply(left, right);
     }
 
-    public static BinaryExpression LiftAndDivide(Expression left, Expression right)
+    public static BinaryExpression LiftAndDivide(Expression left, Expression right, Type? defaultNullType = null)
     {
-        (left, right) = Lift(left, right);
+        (left, right) = Lift(left, right, defaultNullType);
 
         return Expression.Divide(left, right);
     }
 
-    public static BinaryExpression LiftAndModulo(Expression left, Expression right)
+    public static BinaryExpression LiftAndModulo(Expression left, Expression right, Type? defaultNullType = null)
     {
-        (left, right) = Lift(left, right);
+        (left, right) = Lift(left, right, defaultNullType);
 
         return Expression.Modulo(left, right);
     }
@@ -299,13 +299,29 @@ static class ExpressionExtensions
             source,
             Expression.Quote(selector));
 
+    public static Expression NullableNegate(Expression expression, Type? defaultNullType = null)
+    {
+        if (expression.Type == typeof(object)
+            && defaultNullType is not null)
+        {
+            expression = Expression.Convert(expression, defaultNullType);
+        }
+
+        return Expression.Negate(expression);
+    }
+
     // TODO: Can we share logic with CallBestOverload?
-    static (Expression Left, Expression Right) Lift(Expression left, Expression right)
+    static (Expression Left, Expression Right) Lift(Expression left, Expression right, Type? defaultNullType = null)
     {
         var leftType = left.Type;
         var rightType = right.Type;
         if (leftType == rightType)
-            return (left, right);
+        {
+            return leftType == typeof(object)
+                    && defaultNullType is not null
+                ? (Expression.Convert(left, defaultNullType), Expression.Convert(right, defaultNullType))
+                : (left, right);
+        }
 
         var nullable = false;
         if (leftType.IsNullableStruct())

@@ -12,7 +12,7 @@ class SimpleStaticPropertiesTranslator : IFunctionCallTranslator
         { "UTCNow", typeof(DateTime).GetProperty(nameof(DateTime.UtcNow))! }
     };
 
-    public Expression? Translate(string functionName, IReadOnlyList<Expression> arguments)
+    public Expression? Translate(string functionName, IReadOnlyList<Expression> arguments, IPowerFxTranslatorContext context)
     {
         if (_map.TryGetValue(functionName, out var property))
         {

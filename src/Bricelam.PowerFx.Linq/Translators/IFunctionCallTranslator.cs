@@ -4,5 +4,5 @@ namespace Bricelam.PowerFx.Linq.Translators;
 
 interface IFunctionCallTranslator
 {
-    Expression? Translate(string functionName, IReadOnlyList<Expression> arguments);
+    Expression? Translate(string functionName, IReadOnlyList<Expression> arguments, IPowerFxTranslatorContext context);
 }

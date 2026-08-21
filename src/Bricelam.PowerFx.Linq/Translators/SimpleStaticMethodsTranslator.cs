@@ -184,7 +184,7 @@ class SimpleStaticMethodsTranslator : IFunctionCallTranslator
         }
     };
 
-    public Expression? Translate(string functionName, IReadOnlyList<Expression> arguments)
+    public Expression? Translate(string functionName, IReadOnlyList<Expression> arguments, IPowerFxTranslatorContext context)
         => _map.TryGetValue(functionName, out var overloads)
             ? ExpressionExtensions.CallBestOverload(overloads, arguments)
             : null;

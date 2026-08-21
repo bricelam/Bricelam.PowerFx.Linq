@@ -125,7 +125,7 @@ public class PowerFxQueryableTests
     }
 
     [Fact]
-    public void AddColumns_throws_when_dictionary_all_nulls()
+    public void AddColumns_works_for_null_checks_when_dictionary_all_nulls()
     {
         var source = Queryable.AsQueryable(
             new List<Dictionary<string, object?>>
@@ -151,6 +151,41 @@ public class PowerFxQueryableTests
                 Assert.True((bool)i["IsBlank"]!);
                 Assert.Equal(0.0, i["Default"]!);
             });
+    }
+
+    [Fact]
+    public void AddColumns_works_for_arithmetic_when_dictionary_all_nulls()
+    {
+        var source = Queryable.AsQueryable(
+            new List<Dictionary<string, object?>>
+            {
+                new() {
+                    ["X"] = null,
+                    ["Y"] = null
+                }
+            });
+
+        var result = source
+            .AddColumns(
+                ("Minus", "-X"),
+                ("Add", "X + Y"),
+                ("Subtract", "X - Y"),
+                ("Mul", "X * Y"),
+                ("Div", "X / Y"),
+                ("Sum", "Sum(X, Y)"),
+                ("Average", "Average(X, Y)"),
+                ("Mod", "Mod(X, Y)"))
+            .ToList();
+
+        var record = Assert.Single(result);
+        Assert.Null(record["Minus"]);
+        Assert.Null(record["Add"]);
+        Assert.Null(record["Subtract"]);
+        Assert.Null(record["Mul"]);
+        Assert.Null(record["Div"]);
+        Assert.Null(record["Sum"]);
+        Assert.Null(record["Average"]);
+        Assert.Null(record["Mod"]);
     }
 
     [Fact]

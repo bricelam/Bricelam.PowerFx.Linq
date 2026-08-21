@@ -79,15 +79,15 @@ class PowerFxTranslator : TexlFunctionalVisitor<Expression, IPowerFxTranslatorCo
     public override Expression Visit(UnaryOpNode node, IPowerFxTranslatorContext context)
     {
         var child = node.Child.Accept(this, context);
-        Func<Expression, Expression>? expressionFactory = node.Op switch
+        Func<Expression, IPowerFxTranslatorContext, Expression>? expressionFactory = node.Op switch
         {
-            UnaryOp.Not => Expression.Not,
-            UnaryOp.Minus => Expression.Negate,
+            UnaryOp.Not => (o, c) => Expression.Not(o),
+            UnaryOp.Minus => (o, c) => ExpressionExtensions.NullableNegate(o, c.NumberIsDecimal ? typeof(decimal?) : typeof(float?)),
             _ => null
         };
         if (expressionFactory is not null)
         {
-            return expressionFactory(child);
+            return expressionFactory(child, context);
         }
 
         if (node.Op == UnaryOp.Percent)
@@ -102,6 +102,9 @@ class PowerFxTranslator : TexlFunctionalVisitor<Expression, IPowerFxTranslatorCo
 
     public override Expression Visit(BinaryOpNode node, IPowerFxTranslatorContext context)
     {
+        var numericNullType = context.NumberIsDecimal
+            ? typeof(decimal?)
+            : typeof(float?);
         var left = node.Left.Accept(this, context);
         var right = node.Right.Accept(this, context);
 
@@ -109,8 +112,8 @@ class PowerFxTranslator : TexlFunctionalVisitor<Expression, IPowerFxTranslatorCo
         {
             BinaryOp.Or => Expression.OrElse,
             BinaryOp.And => Expression.AndAlso,
-            BinaryOp.Mul => ExpressionExtensions.LiftAndMultiply,
-            BinaryOp.Div => ExpressionExtensions.LiftAndDivide,
+            BinaryOp.Mul => (l, r) => ExpressionExtensions.LiftAndMultiply(l, r, numericNullType),
+            BinaryOp.Div => (l, r) => ExpressionExtensions.LiftAndDivide(l, r, numericNullType),
             BinaryOp.Equal => ExpressionExtensions.LiftAndEqual,
             BinaryOp.NotEqual => ExpressionExtensions.LiftAndNotEqual,
             BinaryOp.Less => ExpressionExtensions.LiftAndLessThan,
@@ -128,8 +131,8 @@ class PowerFxTranslator : TexlFunctionalVisitor<Expression, IPowerFxTranslatorCo
         {
             case BinaryOp.Add:
                 return right is UnaryExpression { NodeType: ExpressionType.Negate } negateExpression
-                    ? ExpressionExtensions.LiftAndSubtract(left, negateExpression.Operand)
-                    : ExpressionExtensions.LiftAndAdd(left, right);
+                    ? ExpressionExtensions.LiftAndSubtract(left, negateExpression.Operand, numericNullType)
+                    : ExpressionExtensions.LiftAndAdd(left, right, numericNullType);
 
             case BinaryOp.Concat:
                 return Expression.Add(
@@ -183,7 +186,7 @@ class PowerFxTranslator : TexlFunctionalVisitor<Expression, IPowerFxTranslatorCo
 
         foreach (var translator in _translators)
         {
-            var translation = translator.Translate(node.Head.Name, arguments);
+            var translation = translator.Translate(node.Head.Name, arguments, context);
             if (translation is not null)
             {
                 return translation;
@@ -216,8 +219,9 @@ class PowerFxTranslator : TexlFunctionalVisitor<Expression, IPowerFxTranslatorCo
             case "Average":
                 return ExpressionExtensions.LiftAndDivide(
                     SimpleBinaryOperatorsTranslator.CreateBinaryTree(
-                        ExpressionExtensions.LiftAndAdd,
-                        arguments),
+                        (l, r, c) => ExpressionExtensions.LiftAndAdd(l, r, c.NumberIsDecimal ? typeof(decimal?) : typeof(float?)),
+                        arguments,
+                        context),
                     Expression.Constant((double)arguments.Count));
 
             case "Blank":
