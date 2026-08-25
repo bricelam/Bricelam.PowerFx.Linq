@@ -24,6 +24,6 @@ class SimpleInstanceMethodsTranslator : IFunctionCallTranslator
 
     public Expression? Translate(string functionName, IReadOnlyList<Expression> arguments, IPowerFxTranslatorContext context)
         => _map.TryGetValue(functionName, out var method)
-            ? Expression.Call(arguments[0], method, arguments.Skip(1).ToArray())
+            ? Expression.Call(arguments[0], method, arguments.Skip(1))
             : null;
 }
