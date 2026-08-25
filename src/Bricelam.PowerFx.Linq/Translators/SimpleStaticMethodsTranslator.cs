@@ -134,8 +134,8 @@ class SimpleStaticMethodsTranslator : IFunctionCallTranslator
         {
             "Power",
             [
-                typeof(Math).GetMethod(nameof(Math.Pow), [typeof(double)])!,
-                typeof(MathF).GetMethod(nameof(MathF.Pow), [typeof(float)])!
+                typeof(Math).GetMethod(nameof(Math.Pow), [typeof(double), typeof(double)])!,
+                typeof(MathF).GetMethod(nameof(MathF.Pow), [typeof(float), typeof(float)])!
             ]
         },
         {
