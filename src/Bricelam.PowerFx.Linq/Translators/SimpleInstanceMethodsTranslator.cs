@@ -9,7 +9,6 @@ class SimpleInstanceMethodsTranslator : IFunctionCallTranslator
     {
         { "EndsWith", typeof(string).GetMethod(nameof(string.EndsWith), [typeof(string)])! },
         { "Lower", typeof(string).GetMethod(nameof(string.ToLower), Type.EmptyTypes)! },
-        { "Split", typeof(string).GetMethod(nameof(string.Split), [typeof(string)])! },
         { "StartsWith", typeof(string).GetMethod(nameof(string.StartsWith), [typeof(string)])! },
 
         // TODO: Handle InstanceNumber parameter

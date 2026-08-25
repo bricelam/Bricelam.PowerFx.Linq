@@ -36,7 +36,7 @@ x exactin y | y.Contains(x)
 Power Fx                      | .NET
 ----------------------------- | ----
 Abs(x)                        | Math.Abs(x)
-Acos(x)                       | Math.ACos(x)
+Acos(x)                       | Math.Acos(x)
 Acot(x)                       | (Math.Pi / 2.0) - Math.Atan(x)
 And(x, y, ...)                | x && y && ...
 Asin(x)                       | Math.Asin(x)

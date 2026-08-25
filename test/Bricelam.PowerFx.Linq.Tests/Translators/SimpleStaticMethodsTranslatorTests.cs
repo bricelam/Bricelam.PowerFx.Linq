@@ -51,6 +51,30 @@ public class SimpleStaticMethodsTranslatorTests : TranslatorTestBase
         => FuncTest("Min(0, Value)", new { Value = default(double?) }, 0.0);
 
     [Fact]
+    public void Power()
+        => FuncTest("Power(2, 3)", 8.0);
+
+    [Fact]
+    public void Power_double_nullable()
+        => FuncTest("Power(Value, 3)", new { Value = (double?)2.0 }, 8.0);
+
+    [Fact]
+    public void Power_decimal()
+        => FuncTest(DecimalConfig, "Power(2, 3)", 8.0);
+
+    [Fact]
+    public void Power_decimal_nullable()
+        => FuncTest(DecimalConfig, "Power(Value, 3)", new { Value = (decimal?)2.0 }, 8.0);
+
+    [Fact]
+    public void Power_float()
+        => FuncTest("Power(X, Y)", new { X = 2.0f, Y = 3.0f }, 8.0f);
+
+    [Fact]
+    public void Power_float_nullable()
+        => FuncTest("Power(X, Y)", new { X = (float?)2.0f, Y = (float?)3.0f }, 8.0f);
+
+    [Fact]
     public void Round_double()
         => FuncTest("Round(3.14, 1)", 3.1);
 

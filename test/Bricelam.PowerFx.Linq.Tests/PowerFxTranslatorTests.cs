@@ -281,6 +281,14 @@ public class PowerFxTranslatorTests : TranslatorTestBase
         => FuncTest("Atan2(1, 0)", 0.0);
 
     [Fact]
+    public void Call_Cot()
+        => FuncTest("Cot(1)", 1.0 / Math.Tan(1.0));
+
+    [Fact]
+    public void Call_Cot_decimal()
+        => FuncTest(DecimalConfig, "Cot(1)", 1.0 / Math.Tan(1.0));
+
+    [Fact]
     public void Call_DateTime()
         => FuncTest("DateTime(2025, 9, 16, 20, 45, 0)", new DateTime(2025, 9, 16, 20, 45, 0));
 
@@ -311,6 +319,10 @@ public class PowerFxTranslatorTests : TranslatorTestBase
     [Fact]
     public void Call_IsBlank_with_nonnullable()
         => FuncTest("IsBlank(1)", false);
+
+    [Fact]
+    public void Call_Split()
+        => FuncTest("Split(\"A,B\", \",\")", new[] { "A", "B" });
 
     [Fact]
     public void Call_UniChar()

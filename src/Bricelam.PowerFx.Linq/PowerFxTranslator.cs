@@ -239,7 +239,7 @@ class PowerFxTranslator : TexlFunctionalVisitor<Expression, IPowerFxTranslatorCo
                     Expression.Call(
                         typeof(Math).GetMethod(nameof(Math.Tan), [typeof(double)])!,
                         [
-                            arguments[0]
+                            ExpressionExtensions.ConvertIfNeeded(arguments[0], typeof(double))
                         ]));
 
             // TODO: Can we use CallBestOverload?
@@ -362,6 +362,15 @@ class PowerFxTranslator : TexlFunctionalVisitor<Expression, IPowerFxTranslatorCo
                         Expression.Subtract(
                             Expression.Property(arguments[0], nameof(string.Length)),
                             ExpressionExtensions.ConvertIfNeeded(arguments[1], typeof(int)))
+                    ]);
+
+            case "Split":
+                return Expression.Call(
+                    arguments[0],
+                    typeof(string).GetMethod(nameof(string.Split), [typeof(string), typeof(StringSplitOptions)])!,
+                    [
+                        arguments[1],
+                        Expression.Constant(StringSplitOptions.None)
                     ]);
 
             // TODO: Handle LanguageTag parameter
