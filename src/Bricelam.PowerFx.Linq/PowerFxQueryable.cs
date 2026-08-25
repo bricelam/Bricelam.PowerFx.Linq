@@ -20,7 +20,7 @@ public static class PowerFxQueryable
     public static IQueryable<Dictionary<string, object?>> AddColumns<TSource>(
         this IQueryable<TSource> source,
         IEnumerable<KeyValuePair<string, string>> columns)
-        => AddColumns(source, columns.Select(c => (c.Key, c.Value)).ToArray());
+        => AddColumns(source, columns.Select(c => (c.Key, c.Value)));
 
     /// <summary>
     /// Adds columns to a sequence of values.
@@ -31,7 +31,7 @@ public static class PowerFxQueryable
     /// <returns>A queryable whose elements are the result of adding the coluns to each elelemt of <paramref name="source"/>.</returns>
     public static IQueryable<Dictionary<string, object?>> AddColumns<TSource>(
         this IQueryable<TSource> source,
-        params (string Name, string Formula)[] columns)
+        params IEnumerable<(string Name, string Formula)> columns)
         => AddColumns(source, config: null, columns);
 
     /// <summary>
@@ -46,7 +46,7 @@ public static class PowerFxQueryable
         this IQueryable<TSource> source,
         PowerFxLinqConfig? config,
         IEnumerable<KeyValuePair<string, string>> columns)
-        => AddColumns(source, config, columns.Select(c => (c.Key, c.Value)).ToArray());
+        => AddColumns(source, config, columns.Select(c => (c.Key, c.Value)));
 
     /// <summary>
     /// Adds columns to a sequence of values.
@@ -60,7 +60,7 @@ public static class PowerFxQueryable
     public static IQueryable<Dictionary<string, object?>> AddColumns<TSource>(
         this IQueryable<TSource> source,
         PowerFxLinqConfig? config,
-        params (string Name, string Formula)[] columns)
+        params IEnumerable<(string Name, string Formula)> columns)
     {
         ArgumentNullException.ThrowIfNull(columns);
 
@@ -115,7 +115,7 @@ public static class PowerFxQueryable
     /// <returns>A queryable whose elements are the result of removing all but the columns specified in <paramref name="columnNames"/> from each element of <paramref name="source"/>.</returns>
     public static IQueryable<Dictionary<string, object?>> ShowColumns<TSource>(
         this IQueryable<TSource> source,
-        params string[] columnNames)
+        params IEnumerable<string> columnNames)
     {
         ArgumentNullException.ThrowIfNull(columnNames);
 
@@ -128,20 +128,21 @@ public static class PowerFxQueryable
             sourceExpression = projection.Source;
             e = projection.RangeVariable;
 
+            var columnsToShow = columnNames.ToHashSet();
             var shownColumns = new HashSet<string>();
             foreach (var property in projection.Properties)
             {
-                if (columnNames.Contains(property.Key))
+                if (columnsToShow.Contains(property.Key))
                 {
                     columns.Add(property.Key, property.Value);
                     shownColumns.Add(property.Key);
                 }
             }
 
-            if (shownColumns.Count != columnNames.Length)
+            if (shownColumns.Count != columnsToShow.Count)
             {
                 throw new PowerFxLinqException(
-                    "Columns not found: " + string.Join(", ", columnNames.Except(shownColumns)));
+                    "Columns not found: " + string.Join(", ", columnsToShow.Except(shownColumns)));
             }
         }
         else
@@ -175,7 +176,7 @@ public static class PowerFxQueryable
     /// <returns>A queryable whose elements are the result of removing the columns specified in <paramref name="columnNames"/> from each element of <paramref name="source"/>.</returns>
     public static IQueryable<Dictionary<string, object?>> DropColumns<TSource>(
         this IQueryable<TSource> source,
-        params string[] columnNames)
+        params IEnumerable<string> columnNames)
     {
         ArgumentNullException.ThrowIfNull(columnNames);
 
@@ -188,10 +189,11 @@ public static class PowerFxQueryable
             sourceExpression = projection.Source;
             e = projection.RangeVariable;
 
+            var columnsToDrop = columnNames.ToHashSet();
             var droppedColumns = new HashSet<string>();
             foreach (var property in projection.Properties)
             {
-                if (columnNames.Contains(property.Key))
+                if (columnsToDrop.Contains(property.Key))
                 {
                     droppedColumns.Add(property.Key);
                 }
@@ -201,10 +203,10 @@ public static class PowerFxQueryable
                 }
             }
 
-            if (droppedColumns.Count != columnNames.Length)
+            if (droppedColumns.Count != columnsToDrop.Count)
             {
                 throw new PowerFxLinqException(
-                    "Columns not found: " + string.Join(", ", columnNames.Except(droppedColumns)));
+                    "Columns not found: " + string.Join(", ", columnsToDrop.Except(droppedColumns)));
             }
         }
         else

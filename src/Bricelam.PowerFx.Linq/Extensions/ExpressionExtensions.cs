@@ -123,8 +123,7 @@ static class ExpressionExtensions
             instance,
             bestOverload,
             argumentsList
-                .Select((a, i) => ConvertIfNeeded(a, bestOverloadParameters[i]))
-                .ToArray());
+                .Select((a, i) => ConvertIfNeeded(a, bestOverloadParameters[i])));
     }
 
     public static Expression ConvertIfNeeded(Expression expression, Type type)
