@@ -8,5 +8,6 @@
     <Authors>Brice Lambson</Authors>
     <Copyright>© 2025-$([System.DateTime]::Today.Year) Brice Lambson. All rights reserved.</Copyright>
     <Product>Bricelam.PowerFx.Linq</Product>
+    <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
   </PropertyGroup>
 </Project>
