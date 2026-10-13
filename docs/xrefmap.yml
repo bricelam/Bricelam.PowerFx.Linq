@@ -1,0 +1,117 @@
+references:
+  - uid: Microsoft.PowerFx.ParseResult
+    name: ParseResult
+    href: https://learn.microsoft.com/dotnet/api/microsoft.powerfx.parseresult
+    fullName: Microsoft.PowerFx.ParseResult
+  - uid: Microsoft.PowerFx.ParserOptions
+    name: ParserOptions
+    href: https://learn.microsoft.com/dotnet/api/microsoft.powerfx.parseroptions
+    fullName: Microsoft.PowerFx.ParserOptions
+  - uid: Microsoft.PowerFx.PowerFxConfig
+    name: PowerFxConfig
+    href: https://learn.microsoft.com/dotnet/api/microsoft.powerfx.powerfxconfig
+    fullName: Microsoft.PowerFx.PowerFxConfig
+  - uid: Microsoft.PowerFx.Syntax.AsNode
+    name: AsNode
+    href: https://learn.microsoft.com/dotnet/api/microsoft.powerfx.syntax.asnode
+    fullName: Microsoft.PowerFx.Syntax.AsNode
+  - uid: Microsoft.PowerFx.Syntax.BinaryOp
+    name: BinaryOp
+    href: https://learn.microsoft.com/dotnet/api/microsoft.powerfx.syntax.binaryop
+    fullName: Microsoft.PowerFx.Syntax.BinaryOp
+  - uid: Microsoft.PowerFx.Syntax.BinaryOpNode
+    name: BinaryOpNode
+    href: https://learn.microsoft.com/dotnet/api/microsoft.powerfx.syntax.binaryopnode
+    fullName: Microsoft.PowerFx.Syntax.BinaryOpNode
+  - uid: Microsoft.PowerFx.Syntax.BlankNode
+    name: BlankNode
+    href: https://learn.microsoft.com/dotnet/api/microsoft.powerfx.syntax.blanknode
+    fullName: Microsoft.PowerFx.Syntax.BlankNode
+  - uid: Microsoft.PowerFx.Syntax.BoolLitNode
+    name: BoolLitNode
+    href: https://learn.microsoft.com/dotnet/api/microsoft.powerfx.syntax.boollitnode
+    fullName: Microsoft.PowerFx.Syntax.BoolLitNode
+  - uid: Microsoft.PowerFx.Syntax.CallNode
+    name: CallNode
+    href: https://learn.microsoft.com/dotnet/api/microsoft.powerfx.syntax.callnode
+    fullName: Microsoft.PowerFx.Syntax.CallNode
+  - uid: Microsoft.PowerFx.Syntax.DecLitNode
+    name: DecLitNode
+    href: https://learn.microsoft.com/dotnet/api/microsoft.powerfx.syntax.declitnode
+    fullName: Microsoft.PowerFx.Syntax.DecLitNode
+  - uid: Microsoft.PowerFx.Syntax.DottedNameNode
+    name: DottedNameNode
+    href: https://learn.microsoft.com/dotnet/api/microsoft.powerfx.syntax.dottednamenode
+    fullName: Microsoft.PowerFx.Syntax.DottedNameNode
+  - uid: Microsoft.PowerFx.Syntax.ErrorNode
+    name: ErrorNode
+    href: https://learn.microsoft.com/dotnet/api/microsoft.powerfx.syntax.errornode
+    fullName: Microsoft.PowerFx.Syntax.ErrorNode
+  - uid: Microsoft.PowerFx.Syntax.FirstNameNode
+    name: FirstNameNode
+    href: https://learn.microsoft.com/dotnet/api/microsoft.powerfx.syntax.firstnamenode
+    fullName: Microsoft.PowerFx.Syntax.FirstNameNode
+  - uid: Microsoft.PowerFx.Syntax.Identifier
+    name: Identifier
+    href: https://learn.microsoft.com/dotnet/api/microsoft.powerfx.syntax.identifier
+    fullName: Microsoft.PowerFx.Syntax.Identifier
+  - uid: Microsoft.PowerFx.Syntax.ListNode
+    name: ListNode
+    href: https://learn.microsoft.com/dotnet/api/microsoft.powerfx.syntax.listnode
+    fullName: Microsoft.PowerFx.Syntax.ListNode
+  - uid: Microsoft.PowerFx.Syntax.NumLitNode
+    name: NumLitNode
+    href: https://learn.microsoft.com/dotnet/api/microsoft.powerfx.syntax.numlitnode
+    fullName: Microsoft.PowerFx.Syntax.NumLitNode
+  - uid: Microsoft.PowerFx.Syntax.ParentNode
+    name: ParentNode
+    href: https://learn.microsoft.com/dotnet/api/microsoft.powerfx.syntax.parentnode
+    fullName: Microsoft.PowerFx.Syntax.ParentNode
+  - uid: Microsoft.PowerFx.Syntax.RecordNode
+    name: RecordNode
+    href: https://learn.microsoft.com/dotnet/api/microsoft.powerfx.syntax.recordnode
+    fullName: Microsoft.PowerFx.Syntax.RecordNode
+  - uid: Microsoft.PowerFx.Syntax.SelfNode
+    name: SelfNode
+    href: https://learn.microsoft.com/dotnet/api/microsoft.powerfx.syntax.selfnode
+    fullName: Microsoft.PowerFx.Syntax.SelfNode
+  - uid: Microsoft.PowerFx.Syntax.StrInterpNode
+    name: StrInterpNode
+    href: https://learn.microsoft.com/dotnet/api/microsoft.powerfx.syntax.strinterpnode
+    fullName: Microsoft.PowerFx.Syntax.StrInterpNode
+  - uid: Microsoft.PowerFx.Syntax.StrLitNode
+    name: StrLitNode
+    href: https://learn.microsoft.com/dotnet/api/microsoft.powerfx.syntax.strlitnode
+    fullName: Microsoft.PowerFx.Syntax.StrLitNode
+  - uid: Microsoft.PowerFx.Syntax.TableNode
+    name: TableNode
+    href: https://learn.microsoft.com/dotnet/api/microsoft.powerfx.syntax.tablenode
+    fullName: Microsoft.PowerFx.Syntax.TableNode
+  - uid: Microsoft.PowerFx.Syntax.TexlFunctionalVisitor`2
+    name: TexlFunctionalVisitor<TResult, TContext>
+    href: https://learn.microsoft.com/dotnet/api/microsoft.powerfx.syntax.texlfunctionalvisitor-2
+    fullName: Microsoft.PowerFx.Syntax.TexlFunctionalVisitor<TResult, TContext>
+  - uid: Microsoft.PowerFx.Syntax.TexlNode
+    name: TexlNode
+    href: https://learn.microsoft.com/dotnet/api/microsoft.powerfx.syntax.texlnode
+    fullName: Microsoft.PowerFx.Syntax.TexlNode
+  - uid: Microsoft.PowerFx.Syntax.TypeLiteralNode
+    name: TypeLiteralNode
+    href: https://learn.microsoft.com/dotnet/api/microsoft.powerfx.syntax.typeliteralnode
+    fullName: Microsoft.PowerFx.Syntax.TypeLiteralNode
+  - uid: Microsoft.PowerFx.Syntax.UnaryOp
+    name: UnaryOp
+    href: https://learn.microsoft.com/dotnet/api/microsoft.powerfx.syntax.unaryop
+    fullName: Microsoft.PowerFx.Syntax.UnaryOp
+  - uid: Microsoft.PowerFx.Syntax.UnaryOpNode
+    name: UnaryOpNode
+    href: https://learn.microsoft.com/dotnet/api/microsoft.powerfx.syntax.unaryopnode
+    fullName: Microsoft.PowerFx.Syntax.UnaryOpNode
+  - uid: Microsoft.PowerFx.Syntax.VariadicOp
+    name: VariadicOp
+    href: https://learn.microsoft.com/dotnet/api/microsoft.powerfx.syntax.variadicop
+    fullName: Microsoft.PowerFx.Syntax.VariadicOp
+  - uid: Microsoft.PowerFx.Syntax.VariadicOpNode
+    name: VariadicOpNode
+    href: https://learn.microsoft.com/dotnet/api/microsoft.powerfx.syntax.variadicopnode
+    fullName: Microsoft.PowerFx.Syntax.VariadicOpNode

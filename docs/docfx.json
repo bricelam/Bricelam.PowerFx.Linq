@@ -20,9 +20,13 @@
                     "**/*.{md,yml}"
                 ],
                 "exclude": [
-                    "_site/**"
+                    "_site/**",
+                    "xrefmap.yml"
                 ]
             }
+        ],
+        "xref": [
+            "xrefmap.yml"
         ],
         "output": "_site",
         "template": [
